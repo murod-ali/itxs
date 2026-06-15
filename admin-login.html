@@ -1,0 +1,465 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin paneliga kirish</title>
+<style>
+:root {
+  --bg:#07070d; --surface:#0f0f18; --surface2:#161622;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --accent:#f59e0b; --accent2:#d97706;
+  --text:#f0f0f5; --muted:#6b6b80;
+  --red:#f87171; --green:#34d399;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:Calibri, Arial, sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px;overflow:hidden;position:relative;
+}
+
+/* Background effects */
+.bg-grid{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(245,158,11,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(245,158,11,0.03) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none;
+}
+.glow{
+  position:fixed;width:500px;height:500px;border-radius:50%;
+  filter:blur(130px);pointer-events:none;
+}
+.glow1{background:rgba(245,158,11,0.08);top:-100px;left:-100px;animation:floatG 9s ease-in-out infinite}
+.glow2{background:rgba(217,119,6,0.06);bottom:-100px;right:-100px;animation:floatG 9s ease-in-out infinite reverse}
+@keyframes floatG{0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)}}
+
+.card{
+  position:relative;z-index:1;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:26px;
+  padding:48px 42px;
+  width:100%;max-width:420px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6);
+  animation:slideUp 0.5s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)}}
+
+.shield{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.08));
+  border:1px solid rgba(245,158,11,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin:0 auto 24px;
+}
+.logo{
+  font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--accent);
+  text-align:center;margin-bottom:8px;
+}
+h2{
+  font-family:Calibri, Arial, sans-serif;font-size:24px;font-weight:800;
+  text-align:center;margin-bottom:6px;
+}
+.sub{color:var(--muted);font-size:16px;text-align:center;margin-bottom:36px}
+
+.field{margin-bottom:18px}
+label{
+  display:block;font-size:16px;font-weight:700;
+  letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap .icon{position:absolute;left:14px;color:var(--muted);pointer-events:none}
+input{
+  width:100%;padding:13px 14px 13px 42px;
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:12px;color:var(--text);
+  font-family:Calibri, Arial, sans-serif;font-size:16px;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,0.1)}
+input.error{border-color:var(--red)}
+.pass-eye{
+  position:absolute;right:14px;background:none;border:none;
+  color:var(--muted);cursor:pointer;padding:0;
+  display:flex;align-items:center;transition:color 0.2s;
+}
+.pass-eye:hover{color:var(--text)}
+
+.err-box{
+  display:none;background:rgba(248,113,113,0.07);
+  border:1px solid rgba(248,113,113,0.2);border-radius:10px;
+  padding:12px 14px;margin-bottom:16px;
+  font-size:16px;color:var(--red);align-items:center;gap:8px;
+}
+.err-box.show{display:flex}
+
+/* Attempts warning */
+.attempts-warn{
+  display:none;background:rgba(251,146,60,0.07);
+  border:1px solid rgba(251,146,60,0.2);border-radius:10px;
+  padding:10px 14px;margin-bottom:14px;
+  font-size:16px;color:#fb923c;text-align:center;
+}
+.attempts-warn.show{display:block}
+
+.btn-login{
+  width:100%;padding:14px;margin-top:4px;
+  border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-family:Calibri, Arial, sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s,opacity 0.2s;
+  box-shadow:0 6px 28px rgba(245,158,11,0.35);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-login:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 38px rgba(245,158,11,0.5)}
+.btn-login:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.spinner{
+  display:none;width:17px;height:17px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.back-link{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:24px;color:var(--muted);font-size:16px;
+  text-decoration:none;transition:color 0.2s;
+}
+.back-link:hover{color:var(--text)}
+
+/* Lockout screen */
+.lockout{
+  display:none;text-align:center;padding:20px 0;
+}
+.lockout.show{display:block}
+.lockout-icon{font-size:48px;margin-bottom:16px}
+.lockout h3{font-family:Calibri, Arial, sans-serif;font-size:20px;font-weight:800;margin-bottom:8px;color:var(--red)}
+.lockout p{color:var(--muted);font-size:16px;margin-bottom:6px}
+.countdown{font-family:Calibri, Arial, sans-serif;font-size:28px;font-weight:800;color:var(--accent);margin:12px 0}
+
+/* Shake animation */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.shake{animation:shake 0.4s ease}
+.mini-icon{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.16em;flex-shrink:0}.stat-icon .mini-icon,.empty-icon .mini-icon,.upload-icon .mini-icon,.platform-icon .mini-icon,.platform-icon-big .mini-icon,.history-icon .mini-icon{width:1.25em;height:1.25em}.icon-title{display:inline-flex;align-items:center;gap:8px}.icon-title .mini-icon{width:1em;height:1em}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="glow glow1"></div>
+<div class="glow glow2"></div>
+
+<div class="card" id="mainCard">
+  <div class="shield"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+  <div class="logo">SocialBoost UZ</div>
+  <h2>Admin Kirish</h2>
+  <p class="sub">Sayt egasi va adminlar uchun</p>
+
+  <!-- Login form -->
+  <div id="loginForm">
+    <div class="err-box" id="errBox">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errText">Login yoki parol noto'g'ri</span>
+    </div>
+    <div class="attempts-warn" id="attemptsWarn"></div>
+
+    <div class="field">
+      <label>Admin Login</label>
+      <div class="input-wrap">
+        <svg class="icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <input type="text" id="loginInput" placeholder="loginni kiriting" autocomplete="username" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Parol</label>
+      <div class="input-wrap">
+        <svg class="icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="passInput" placeholder="parolni kiriting" autocomplete="current-password" />
+        <button class="pass-eye" id="eyeBtn" onclick="toggleEye()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="handleLogin()">
+      <span id="btnText">Kirish</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+  </div>
+
+  <!-- Lockout screen -->
+  <div class="lockout" id="lockoutScreen">
+    <div class="lockout-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <h3>Kirish bloklandi</h3>
+    <p>Ko'p marta noto'g'ri urinish. Iltimos kuting:</p>
+    <div class="countdown" id="countdown">30</div>
+    <p style="font-size:16px;color:var(--muted)">soniyadan so'ng qayta urinib ko'ring</p>
+  </div>
+
+  <a href="index.html" class="back-link">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Bosh sahifaga qaytish
+  </a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDBdtthIoPurKPIVBlxSvhkVs__9y2s6Ks",
+  authDomain: "tarmoq-obuna.firebaseapp.com",
+  projectId: "tarmoq-obuna",
+  storageBucket: "tarmoq-obuna.firebasestorage.app",
+  messagingSenderId: "213176729421",
+  appId: "1:213176729421:web:4eb36c597aca601dd4c104"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const ADMIN_LOGIN = 'mirzo2005';
+const ADMIN_EMAIL = 'shmurodov200@gmail.com';
+const ADMIN_PASS  = '01070521';
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_SEC  = 30;
+
+let attempts = parseInt(sessionStorage.getItem('adm_attempts') || '0');
+let locked   = sessionStorage.getItem('adm_locked') === '1';
+let lockTimer = null;
+
+function ensureAdminProfile(){
+  const stored = JSON.parse(localStorage.getItem('sb_admin_profile') || 'null') || {};
+  const profile = {
+    name: stored.name || 'Superadmin',
+    userId: stored.userId || 'ADM001',
+    login: ADMIN_LOGIN,
+    email: ADMIN_EMAIL,
+    password: ADMIN_PASS
+  };
+  localStorage.setItem('sb_admin_profile', JSON.stringify(profile));
+  return profile;
+}
+
+function verifyPendingAdminEmailFromHash(){
+  const match = window.location.hash.match(/admin-email-verify=([^&]+)/);
+  if(!match) return;
+
+  const pending = JSON.parse(localStorage.getItem('sb_admin_pending_email') || 'null');
+  if(pending && pending.token === match[1]){
+    const profile = ensureAdminProfile();
+    localStorage.setItem('sb_admin_profile', JSON.stringify(profile));
+    localStorage.removeItem('sb_admin_pending_email');
+    history.replaceState(null, '', 'admin-login.html');
+    alert('Superadmin Gmaili faqat shmurodov200@gmail.com bo\'lib qoladi.');
+    return;
+  }
+
+  history.replaceState(null, '', 'admin-login.html');
+  alert('Tasdiqlash havolasi eskirgan yoki noto\'g\'ri.');
+}
+
+// On load - check if already locked or logged in
+window.onload = function(){
+  ensureAdminProfile();
+  verifyPendingAdminEmailFromHash();
+  auth.onAuthStateChanged(async user => {
+    if(!user) return;
+    if(String(user.email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      sessionStorage.setItem('sb_admin_auth', '1');
+      sessionStorage.removeItem('sb_superadmin_preview');
+      localStorage.removeItem('sb_current_user');
+      localStorage.removeItem('sb_current_worker');
+      window.location.href = 'admin.html';
+      return;
+    }
+    let role = '';
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      if(doc.exists) role = doc.data().role || '';
+    } catch (error) {
+      console.warn('Firestore admin role read failed:', error);
+    }
+    if(!role) {
+      try { role = JSON.parse(user.displayName || '{}').role || ''; } catch (error) {}
+    }
+    if(String(role).trim().toLowerCase() === 'admin') {
+      sessionStorage.setItem('sb_admin_auth', '1');
+      window.location.href = 'admin.html';
+    }
+  });
+  if(locked) startLockout();
+};
+
+function toggleEye(){
+  const inp = document.getElementById('passInput');
+  const btn = document.getElementById('eyeBtn');
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  } else {
+    inp.type = 'password';
+    btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+}
+
+async function ensureAdminAuthAccount(){
+  let credential = null;
+  try {
+    credential = await auth.signInWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASS);
+  } catch (error) {
+    if(error.code !== 'auth/user-not-found') throw error;
+    credential = await auth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASS);
+    await credential.user.updateProfile({
+      displayName: JSON.stringify({ name:'Superadmin', userId:'ADM001', login:ADMIN_LOGIN, email:ADMIN_EMAIL, role:'admin' })
+    });
+  }
+  await credential.user.updateProfile({
+    displayName: JSON.stringify({ name:'Superadmin', userId:'ADM001', login:ADMIN_LOGIN, email:ADMIN_EMAIL, role:'admin' })
+  }).catch(error => console.warn('Firebase admin profile update failed:', error));
+  await db.collection('users').doc(credential.user.uid).set({
+    name:'Superadmin',
+    userId:'ADM001',
+    login:ADMIN_LOGIN,
+    email:ADMIN_EMAIL,
+    role:'admin',
+    loginLower:ADMIN_LOGIN.toLowerCase(),
+    emailLower:ADMIN_EMAIL.toLowerCase(),
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge:true }).catch(error => console.warn('Firestore admin profile save failed:', error));
+  return credential;
+}
+
+async function handleLogin(){
+  if(locked) return;
+  const login = document.getElementById('loginInput').value.trim();
+  const pass  = document.getElementById('passInput').value;
+  const errBox = document.getElementById('errBox');
+  errBox.classList.remove('show');
+  document.getElementById('loginInput').classList.remove('error');
+  document.getElementById('passInput').classList.remove('error');
+
+  if(!login || !pass){
+    showError('Barcha maydonlarni to\'ldiring');
+    return;
+  }
+
+  // Show spinner
+  const btn = document.getElementById('loginBtn');
+  document.getElementById('btnText').style.display = 'none';
+  document.getElementById('spinner').style.display = 'block';
+  btn.disabled = true;
+
+  try {
+    btn.disabled = false;
+    document.getElementById('btnText').style.display = 'inline';
+    document.getElementById('spinner').style.display = 'none';
+
+    const adminProfile = ensureAdminProfile();
+    const loginVal = login.toLowerCase();
+    const adminLoginMatches =
+      loginVal === String(adminProfile.login || '').toLowerCase() ||
+      loginVal === String(adminProfile.email || '').toLowerCase();
+    if(adminLoginMatches && pass === adminProfile.password){
+      sessionStorage.removeItem('sb_superadmin_preview');
+      localStorage.removeItem('sb_current_user');
+      localStorage.removeItem('sb_current_worker');
+      await ensureAdminAuthAccount();
+      sessionStorage.setItem('sb_admin_auth', '1');
+      // SUCCESS
+      attempts = 0;
+      sessionStorage.setItem('adm_attempts', '0');
+      sessionStorage.removeItem('adm_locked');
+      // Green flash
+      btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+      btn.innerHTML = `<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Muvaffaqiyatli kirish!`;
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 800);
+    } else {
+      // FAIL
+      attempts++;
+      sessionStorage.setItem('adm_attempts', attempts);
+      const left = MAX_ATTEMPTS - attempts;
+
+      document.getElementById('loginInput').classList.add('error');
+      document.getElementById('passInput').classList.add('error');
+
+      // Shake card
+      const card = document.getElementById('mainCard');
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 400);
+
+      if(attempts >= MAX_ATTEMPTS){
+        locked = true;
+        sessionStorage.setItem('adm_locked', '1');
+        startLockout();
+      } else {
+        showError(`Login yoki parol noto'g'ri`);
+        if(left <= 2){
+          const w = document.getElementById('attemptsWarn');
+          w.textContent = `Diqqat! Yana ${left} ta urinish qoldi`;
+          w.classList.add('show');
+        }
+      }
+    }
+  } catch (error) {
+    btn.disabled = false;
+    document.getElementById('btnText').style.display = 'inline';
+    document.getElementById('spinner').style.display = 'none';
+    showError('Firebase Auth orqali kirishda xatolik yuz berdi');
+  }
+}
+
+function showError(msg){
+  const errBox = document.getElementById('errBox');
+  document.getElementById('errText').textContent = msg;
+  errBox.classList.add('show');
+}
+
+function startLockout(){
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('lockoutScreen').classList.add('show');
+  let sec = LOCKOUT_SEC;
+  document.getElementById('countdown').textContent = sec;
+
+  lockTimer = setInterval(() => {
+    sec--;
+    document.getElementById('countdown').textContent = sec;
+    if(sec <= 0){
+      clearInterval(lockTimer);
+      locked = false;
+      attempts = 0;
+      sessionStorage.setItem('adm_attempts', '0');
+      sessionStorage.removeItem('adm_locked');
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('lockoutScreen').classList.remove('show');
+      document.getElementById('attemptsWarn').classList.remove('show');
+      document.getElementById('errBox').classList.remove('show');
+      document.getElementById('loginInput').classList.remove('error');
+      document.getElementById('passInput').classList.remove('error');
+      document.getElementById('loginInput').value = '';
+      document.getElementById('passInput').value = '';
+    }
+  }, 1000);
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !locked) handleLogin();
+});
+</script>
+</body>
+</html>
