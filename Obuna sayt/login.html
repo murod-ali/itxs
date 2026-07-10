@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kirish</title>
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#13131c; --surface2:#1a1a26;
+    --border:rgba(255,255,255,0.08); --accent:#4f8ef7; --accent2:#a855f7;
+    --text:#f0f0f5; --muted:#6b6b80; --error:#f87171; --success:#34d399;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:Calibri, Arial, sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; align-items:center;
+    justify-content:center; padding:20px;
+  }
+  .bg-grid {
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(79,142,247,0.03) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(79,142,247,0.03) 1px,transparent 1px);
+    background-size:60px 60px; pointer-events:none;
+  }
+  .card {
+    position:relative; z-index:1;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:24px; padding:44px 40px;
+    width:100%; max-width:420px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.5);
+    animation:slideUp 0.5s ease;
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  .back-link {
+    display:inline-flex; align-items:center; gap:6px;
+    color:var(--muted); text-decoration:none;
+    font-size:16px; margin-bottom:32px; transition:color 0.2s;
+  }
+  .back-link:hover { color:var(--text); }
+  .logo { font-family:Calibri, Arial, sans-serif; font-size:16px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+  h2 { font-family:Calibri, Arial, sans-serif; font-size:26px; font-weight:800; margin-bottom:6px; }
+  .sub { color:var(--muted); font-size:16px; margin-bottom:32px; }
+  .field { margin-bottom:18px; }
+  .field-label {
+    display:block; font-size:16px; font-weight:600;
+    letter-spacing:0.8px; text-transform:uppercase;
+    color:var(--muted); margin-bottom:8px;
+  }
+
+  /* INPUT WITH ICONS */
+  .input-wrap {
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .input-left-icon {
+    position:absolute;
+    left:14px;
+    color:var(--muted);
+    pointer-events:none;
+    z-index:1;
+    display:flex;
+    align-items:center;
+  }
+  .input-wrap input {
+    width:100%;
+    padding:13px 14px 13px 42px;
+    background:var(--surface2);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    color:var(--text);
+    font-family:Calibri, Arial, sans-serif;
+    font-size:16px;
+    outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap input.has-right-icon {
+    padding-right:46px;
+  }
+  .input-wrap input:focus {
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(79,142,247,0.12);
+  }
+  .input-wrap input.error {
+    border-color:var(--error);
+  }
+  .input-right-btn {
+    position:absolute;
+    right:0;
+    top:0;
+    bottom:0;
+    width:44px;
+    background:none;
+    border:none;
+    color:var(--muted);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:0 12px 12px 0;
+    transition:color 0.2s;
+    z-index:2;
+  }
+  .input-right-btn:hover { color:var(--text); }
+
+  .err-box {
+    display:none;
+    background:rgba(248,113,113,0.08);
+    border:1px solid rgba(248,113,113,0.2);
+    border-radius:10px; padding:12px 14px; margin-bottom:16px;
+    font-size:16px; color:var(--error);
+    align-items:center; gap:8px;
+  }
+  .err-box.show { display:flex; }
+
+  .btn-login {
+    width:100%; padding:15px; margin-top:6px;
+    border-radius:12px; border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; font-family:Calibri, Arial, sans-serif;
+    font-size:16px; font-weight:700; cursor:pointer;
+    transition:transform 0.2s,box-shadow 0.2s;
+    box-shadow:0 6px 30px rgba(79,142,247,0.35);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-login:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 40px rgba(79,142,247,0.5); }
+  .btn-login:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .spinner {
+    display:none; width:18px; height:18px;
+    border:2px solid rgba(255,255,255,0.3);
+    border-top-color:#fff; border-radius:50%;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .divider { display:flex; align-items:center; gap:12px; margin:24px 0; color:var(--muted); font-size:16px; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .reg-link { text-align:center; font-size:16px; color:var(--muted); }
+  .reg-link a { color:var(--accent); text-decoration:none; font-weight:600; }
+  .reg-link a:hover { text-decoration:underline; }
+  .verified-badge {
+    display:flex; align-items:center; gap:8px;
+    background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2);
+    border-radius:10px; padding:12px 14px; margin-bottom:20px;
+    font-size:16px; color:var(--success);
+  }
+  .fullscreen-message{
+    display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,0.86);backdrop-filter:blur(12px);
+    align-items:center;justify-content:center;padding:20px;text-align:center;
+  }
+  .fullscreen-message.show{display:flex}
+  .fullscreen-card{
+    width:100%;max-width:560px;background:var(--surface);
+    border:1px solid var(--border);border-radius:24px;
+    padding:44px 36px;box-shadow:0 30px 80px rgba(0,0,0,0.5);
+    animation:slideUp 0.35s ease;
+  }
+  .fullscreen-card h3{
+    font-family:Calibri, Arial, sans-serif;font-size:24px;font-weight:800;margin-bottom:12px;
+    color:var(--success);
+  }
+  .fullscreen-card p{color:var(--muted);font-size:16px;line-height:1.6}
+  .fullscreen-card button{
+    margin-top:28px;padding:13px 32px;border-radius:12px;
+    background:rgba(79,142,247,0.15);border:1px solid rgba(79,142,247,0.3);
+    color:var(--accent);font-family:Calibri, Arial, sans-serif;font-size:16px;
+    font-weight:700;cursor:pointer;
+  }
+  .help-btn{
+    position:fixed;right:18px;bottom:18px;z-index:20;
+    display:inline-flex;align-items:center;gap:8px;padding:11px 14px;
+    border-radius:12px;border:1px solid rgba(79,142,247,0.28);
+    background:rgba(79,142,247,0.12);color:var(--accent);
+    font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;cursor:pointer;
+  }
+  .help-btn:hover{background:rgba(79,142,247,0.22)}
+
+  /* FORGOT PASSWORD MODAL */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.82); backdrop-filter:blur(12px);
+    z-index:200; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.show { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:24px; padding:40px 36px; width:100%; max-width:440px;
+    animation:slideUp 0.35s ease; position:relative;
+  }
+  .modal-close {
+    position:absolute; top:16px; right:16px;
+    background:var(--surface2); border:none; color:var(--muted);
+    width:32px; height:32px; border-radius:8px; cursor:pointer;
+    font-size:18px; display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s;
+  }
+  .modal-close:hover { background:rgba(248,113,113,0.15); color:var(--error); }
+  .modal-icon { font-size:38px; margin-bottom:16px; text-align:center; }
+  .modal h3 { font-family:Calibri,Arial,sans-serif; font-size:22px; font-weight:800; margin-bottom:8px; }
+  .modal p { color:var(--muted); font-size:15px; line-height:1.6; margin-bottom:24px; }
+  .modal-step { display:none; }
+  .modal-step.active { display:block; }
+  .modal-input-wrap { position:relative; display:flex; align-items:center; margin-bottom:14px; }
+  .modal-input-icon { position:absolute; left:14px; color:var(--muted); pointer-events:none; display:flex; align-items:center; }
+  .modal-input {
+    width:100%; padding:13px 14px 13px 42px;
+    background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; color:var(--text);
+    font-family:Calibri,Arial,sans-serif; font-size:16px;
+    outline:none; transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .modal-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(79,142,247,0.12); }
+  .modal-input.error { border-color:var(--error); }
+  .modal-input.has-right { padding-right:46px; }
+  .modal-eye {
+    position:absolute; right:0; top:0; bottom:0; width:44px;
+    background:none; border:none; color:var(--muted); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:0 12px 12px 0; transition:color 0.2s; z-index:2;
+  }
+  .modal-eye:hover { color:var(--text); }
+  .modal-err {
+    display:none; align-items:center; gap:6px;
+    font-size:14px; color:var(--error); margin-bottom:12px;
+  }
+  .modal-err.show { display:flex; }
+  .modal-success {
+    display:none; align-items:center; gap:8px;
+    background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2);
+    border-radius:10px; padding:12px 14px; font-size:14px;
+    color:var(--success); margin-bottom:14px;
+  }
+  .modal-success.show { display:flex; }
+  .btn-modal {
+    width:100%; padding:14px; border-radius:12px; border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; font-family:Calibri,Arial,sans-serif;
+    font-size:16px; font-weight:700; cursor:pointer;
+    transition:transform 0.2s, box-shadow 0.2s;
+    box-shadow:0 6px 28px rgba(79,142,247,0.35);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-modal:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 38px rgba(79,142,247,0.5); }
+  .btn-modal:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .forgot-link {
+    display:block; text-align:right; margin-top:6px; margin-bottom:4px;
+    color:var(--accent); font-size:15px; font-weight:600;
+    cursor:pointer; text-decoration:none; background:none; border:none;
+    transition:opacity 0.2s;
+  }
+  .forgot-link:hover { opacity:0.75; }
+.mini-icon{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.16em;flex-shrink:0}.stat-icon .mini-icon,.empty-icon .mini-icon,.upload-icon .mini-icon,.platform-icon .mini-icon,.platform-icon-big .mini-icon,.history-icon .mini-icon{width:1.25em;height:1.25em}.icon-title{display:inline-flex;align-items:center;gap:8px}.icon-title .mini-icon{width:1em;height:1em}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<button type="button" class="help-btn" onclick="openHelp()">Yordam</button>
+<div class="fullscreen-message" id="verifiedOverlay">
+  <div class="fullscreen-card">
+    <h3>Gmailingiz tasdiqlandi saytga kirishingiz mumkin</h3>
+    <p>Login yoki Gmailingiz va parolingiz orqali tizimga kiring.</p>
+    <button type="button" onclick="closeVerifiedOverlay()">Kirishni boshlash</button>
+  </div>
+</div>
+<div class="card">
+  <a href="index.html" class="back-link">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Bosh sahifa
+  </a>
+  <div class="logo">SocialBoost UZ</div>
+  <h2>Xush kelibsiz!</h2>
+  <p class="sub">Login yoki Gmail va parolingizni kiriting</p>
+
+  <div class="verified-badge" id="verifiedBadge" style="display:none">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Email muvaffaqiyatli tasdiqlandi!
+  </div>
+
+  <div class="err-box" id="errBox">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="errText">Login/Gmail yoki parol noto'g'ri</span>
+  </div>
+
+  <!-- LOGIN OR GMAIL FIELD -->
+  <div class="field">
+    <label class="field-label">Login yoki Gmail</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      <input type="text" id="loginInput" placeholder="Login yoki Gmailingizni kiriting" autocomplete="username" />
+    </div>
+  </div>
+
+  <!-- PASSWORD FIELD -->
+  <div class="field">
+    <label class="field-label">Parol</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
+      <input type="password" id="passInput" placeholder="Parolingizni kiriting" class="has-right-icon" />
+      <button class="input-right-btn" type="button" id="eyeBtn" onclick="togglePass()">
+        <!-- EYE OPEN -->
+        <svg id="eyeOpen" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <!-- EYE CLOSED (hidden) -->
+        <svg id="eyeClosed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <button type="button" class="forgot-link" onclick="openForgotModal()">Parolni unutdingizmi?</button>
+
+  <button type="button" class="btn-login" id="loginBtn" onclick="handleLogin()">
+    <span id="btnText">Kirish</span>
+    <div class="spinner" id="btnSpinner"></div>
+  </button>
+
+  <div class="divider">yoki</div>
+  <div class="reg-link">Hisobingiz yo'qmi? <a href="register.html">Ro'yxatdan o'ting</a></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+// Verified badge
+const params = new URLSearchParams(window.location.search);
+if (params.get('verified') === '1') {
+  document.getElementById('verifiedBadge').style.display = 'flex';
+  document.getElementById('verifiedOverlay').classList.add('show');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+function closeVerifiedOverlay(){
+  document.getElementById('verifiedOverlay').classList.remove('show');
+}
+
+// Toggle password visibility
+function togglePass() {
+  const inp = document.getElementById('passInput');
+  const eyeOpen = document.getElementById('eyeOpen');
+  const eyeClosed = document.getElementById('eyeClosed');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eyeOpen.style.display = 'none';
+    eyeClosed.style.display = 'block';
+  } else {
+    inp.type = 'password';
+    eyeOpen.style.display = 'block';
+    eyeClosed.style.display = 'none';
+  }
+}
+
+function toggleModalPass(inputId, openIconId, closedIconId) {
+  const inp = document.getElementById(inputId);
+  const eyeOpen = document.getElementById(openIconId);
+  const eyeClosed = document.getElementById(closedIconId);
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eyeOpen.style.display = 'none';
+    eyeClosed.style.display = 'block';
+  } else {
+    inp.type = 'password';
+    eyeOpen.style.display = 'block';
+    eyeClosed.style.display = 'none';
+  }
+}
+
+// Login by username → find email
+async function findEmailByLogin(loginOrEmail) {
+  if (isSuperadminIdentity(loginOrEmail)) return SUPERADMIN_PROFILE.email;
+  if (loginOrEmail.includes('@')) return loginOrEmail;
+  const { data, error } = await sb
+    .from('users')
+    .select('email')
+    .eq('login_lower', loginOrEmail.toLowerCase())
+    .limit(1)
+    .single();
+  if (data) return data.email;
+  return loginOrEmail;
+}
+
+async function handleLogin() {
+  const loginOrEmail = document.getElementById('loginInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  const errBox = document.getElementById('errBox');
+
+  errBox.classList.remove('show');
+  document.getElementById('loginInput').classList.remove('error');
+  document.getElementById('passInput').classList.remove('error');
+
+  if (!loginOrEmail || !pass) {
+    document.getElementById('errText').textContent = "Barcha maydonlarni to'ldiring";
+    errBox.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('loginBtn');
+  document.getElementById('btnText').style.display = 'none';
+  document.getElementById('btnSpinner').style.display = 'block';
+  btn.disabled = true;
+
+  try {
+    // Superadmin tekshiruvi
+    if (isSuperadminIdentity(loginOrEmail) && pass === SUPERADMIN_PROFILE.password) {
+      clearAuthStorage();
+      openSuperadminPanel();
+      return;
+    }
+
+    const email = await findEmailByLogin(loginOrEmail);
+
+    // Supabase Auth bilan kirish
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+    if (error) throw error;
+
+    // Foydalanuvchi profilini olish
+    const { data: profile } = await sb
+      .from('users')
+      .select('*')
+      .eq('id', data.user.id)
+      .single();
+
+    const role = normalizeRole(profile?.rol || 'customer');
+    clearAuthStorage();
+
+    btn.disabled = false;
+    document.getElementById('btnText').style.display = 'inline';
+    document.getElementById('btnSpinner').style.display = 'none';
+
+    if (role === 'admin') {
+      openSuperadminPanel();
+    } else if (role === 'worker') {
+      localStorage.setItem('sb_current_worker', JSON.stringify({ ...profile, role }));
+      window.location.href = 'worker.html';
+    } else {
+      localStorage.setItem('sb_current_user', JSON.stringify({ ...profile, role }));
+      window.location.href = 'dashboard.html';
+    }
+  } catch (error) {
+    btn.disabled = false;
+    document.getElementById('btnText').style.display = 'inline';
+    document.getElementById('btnSpinner').style.display = 'none';
+    document.getElementById('errText').textContent = "Login/Gmail yoki parol noto'g'ri";
+    errBox.classList.add('show');
+    document.getElementById('loginInput').classList.add('error');
+    document.getElementById('passInput').classList.add('error');
+  }
+}
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const modal = document.getElementById('forgotModal');
+    if(modal && modal.classList.contains('show')) {
+      if (document.getElementById('step3').classList.contains('active')) {
+        saveNewPassword();
+      } else if (document.getElementById('step2').classList.contains('active')) {
+        verifyResetCode();
+      } else {
+        sendResetEmail();
+      }
+    } else {
+      handleLogin();
+    }
+  }
+});
+
+// ===== PAROLNI UNUTDINGIZMI (8 XONALI KOD ORQALI) =====
+let resetEmailAddr = ''; // 1-qadamda kiritilgan email shu yerda saqlanadi
+let passwordRecoveryReady = false;
+
+function getPasswordResetRedirectUrl() {
+  const url = new URL(window.location.href);
+  url.search = '?reset=1';
+  url.hash = '';
+  return url.toString();
+}
+
+function hasRecoveryParams() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  return query.get('reset') === '1' ||
+    query.has('code') ||
+    query.get('type') === 'recovery' ||
+    hash.get('type') === 'recovery' ||
+    hash.has('access_token');
+}
+
+async function handlePasswordRecoveryRedirect() {
+  if (!hasRecoveryParams()) return;
+
+  const query = new URLSearchParams(window.location.search);
+  const code = query.get('code');
+
+  try {
+    if (code) {
+      const { error } = await sb.auth.exchangeCodeForSession(code);
+      if (error) throw error;
+    }
+    passwordRecoveryReady = true;
+    openForgotModal();
+    goToStep3();
+    history.replaceState(null, '', window.location.pathname);
+  } catch (error) {
+    openForgotModal();
+    document.getElementById('forgotErrText').textContent = "Reset link muddati o'tgan. Qaytadan urinib ko'ring";
+    document.getElementById('forgotErr').classList.add('show');
+    history.replaceState(null, '', window.location.pathname);
+  }
+}
+
+function showPasswordRecoveryStep() {
+  const openStep = () => {
+    passwordRecoveryReady = true;
+    openForgotModal();
+    goToStep3();
+    history.replaceState(null, '', window.location.pathname);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', openStep, { once: true });
+  } else {
+    openStep();
+  }
+}
+
+sb.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    showPasswordRecoveryStep();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', handlePasswordRecoveryRedirect, { once: true });
+
+function openForgotModal() {
+  document.getElementById('forgotEmail').value = '';
+  document.getElementById('forgotErr').classList.remove('show');
+  document.getElementById('forgotSuccess').classList.remove('show');
+  document.getElementById('sendResetBtn').disabled = false;
+  document.getElementById('sendResetBtn').innerHTML = `
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    Kod yuborish`;
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step3').classList.remove('active');
+  document.getElementById('forgotModal').classList.add('show');
+  setTimeout(() => document.getElementById('forgotEmail').focus(), 100);
+}
+
+function closeForgotModal() {
+  document.getElementById('forgotModal').classList.remove('show');
+}
+
+// 1-QADAM: Emailga 8 xonali kod yuborish
+async function sendResetEmail() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const errEl = document.getElementById('forgotErr');
+  const errText = document.getElementById('forgotErrText');
+  const successEl = document.getElementById('forgotSuccess');
+  const btn = document.getElementById('sendResetBtn');
+
+  errEl.classList.remove('show');
+  successEl.classList.remove('show');
+
+  if (!email || !email.includes('@')) {
+    errText.textContent = "To'g'ri Gmail manzilini kiriting";
+    errEl.classList.add('show');
+    document.getElementById('forgotEmail').focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = `<div style="width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto"></div>`;
+
+  try {
+    // resetPasswordForEmail — Supabase "Reset Password" shabloni orqali
+    // {{ .Token }} (8 xonali kod) yuboradi
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: getPasswordResetRedirectUrl()
+    });
+    if (error) throw error;
+
+    resetEmailAddr = email;
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kod yuborish`;
+    goToStep2();
+  } catch (error) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kod yuborish`;
+    errText.textContent = "Xatolik yuz berdi. Qayta urinib ko'ring";
+    errEl.classList.add('show');
+  }
+}
+
+// 2-QADAM: Foydalanuvchi Gmailga kelgan 8 xonali kodni kiritadi
+function goToStep2() {
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+  document.getElementById('step3').classList.remove('active');
+  document.getElementById('codeInput').value = '';
+  document.getElementById('codeErr').classList.remove('show');
+  document.getElementById('codeEmailLabel').textContent = resetEmailAddr;
+  setTimeout(() => document.getElementById('codeInput').focus(), 100);
+}
+
+function backToStep1() {
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+}
+
+async function verifyResetCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  const errEl = document.getElementById('codeErr');
+  const errText = document.getElementById('codeErrText');
+  const btn = document.getElementById('verifyCodeBtn');
+
+  errEl.classList.remove('show');
+
+  if (!/^\d{8}$/.test(code)) {
+    errText.textContent = "8 xonali kodni to'liq kiriting";
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = `<div style="width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto"></div>`;
+
+  try {
+    const { error } = await sb.auth.verifyOtp({
+      email: resetEmailAddr,
+      token: code,
+      type: 'recovery'
+    });
+    if (error) throw error;
+    goToStep3();
+  } catch (error) {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    errText.textContent = "Kod noto'g'ri yoki muddati o'tgan. Qayta urinib ko'ring";
+    errEl.classList.add('show');
+  }
+}
+
+// 3-QADAM: Yangi parol o'rnatish
+function goToStep3() {
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step3').classList.add('active');
+  document.getElementById('newPassInput').value = '';
+  document.getElementById('newPassInput2').value = '';
+  document.getElementById('newPassInput').type = 'password';
+  document.getElementById('newPassInput2').type = 'password';
+  document.getElementById('newPassEyeOpen')?.style.setProperty('display', 'block');
+  document.getElementById('newPassEyeClosed')?.style.setProperty('display', 'none');
+  document.getElementById('newPass2EyeOpen')?.style.setProperty('display', 'block');
+  document.getElementById('newPass2EyeClosed')?.style.setProperty('display', 'none');
+  document.getElementById('newPassErr').classList.remove('show');
+  document.getElementById('newPassSuccess').classList.remove('show');
+  setTimeout(() => document.getElementById('newPassInput').focus(), 100);
+}
+
+async function saveNewPassword() {
+  const pass1 = document.getElementById('newPassInput').value;
+  const pass2 = document.getElementById('newPassInput2').value;
+  const errEl = document.getElementById('newPassErr');
+  const errText = document.getElementById('newPassErrText');
+  const successEl = document.getElementById('newPassSuccess');
+  const btn = document.getElementById('savePassBtn');
+
+  errEl.classList.remove('show');
+  successEl.classList.remove('show');
+
+  if (!pass1 || pass1.length < 6) {
+    errText.textContent = "Parol kamida 6 belgidan iborat bo'lishi kerak";
+    errEl.classList.add('show');
+    return;
+  }
+  if (pass1 !== pass2) {
+    errText.textContent = "Parollar bir xil emas";
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = `<div style="width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto"></div>`;
+
+  try {
+    if (!passwordRecoveryReady) {
+      const { data } = await sb.auth.getSession();
+      passwordRecoveryReady = !!data.session;
+    }
+
+    if (!passwordRecoveryReady) {
+      throw new Error("Reset link orqali login sahifasini qayta oching");
+    }
+
+    const { error } = await sb.auth.updateUser({ password: pass1 });
+    if (error) throw error;
+
+    successEl.classList.add('show');
+    btn.style.display = 'none';
+
+    // Xavfsizlik uchun: parol yangilangach sessiyadan chiqamiz,
+    // foydalanuvchi yangi parol bilan qaytadan kirsin.
+    await sb.auth.signOut();
+
+    setTimeout(() => {
+      closeForgotModal();
+      document.getElementById('step3').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+      btn.style.display = 'flex';
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }, 2500);
+  } catch (error) {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    errText.textContent = "Xatolik: " + (error.message || "Qayta urinib ko'ring");
+    errEl.classList.add('show');
+  }
+}
+
+document.getElementById('forgotModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeForgotModal();
+});
+</script>
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal">
+    <button type="button" class="modal-close" onclick="closeForgotModal()">✕</button>
+
+    <!-- STEP 1: Email kiriting -->
+    <div class="modal-step active" id="step1">
+      <div class="modal-icon">🔑</div>
+      <h3>Parolni tiklash</h3>
+      <p>Gmailingizni kiriting. Sizga 8 xonali tasdiqlash kodi yuboramiz.</p>
+      <div class="modal-input-wrap">
+        <span class="modal-input-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </span>
+        <input type="email" class="modal-input" id="forgotEmail" placeholder="sizning@gmail.com" />
+      </div>
+      <div class="modal-err" id="forgotErr">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="forgotErrText">Xatolik yuz berdi</span>
+      </div>
+      <div class="modal-success" id="forgotSuccess">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Kod Gmailingizga yuborildi! Tekshiring.
+      </div>
+      <button type="button" class="btn-modal" id="sendResetBtn" onclick="sendResetEmail()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Kod yuborish
+      </button>
+      <div style="text-align:center;margin-top:16px">
+        <button type="button" onclick="closeForgotModal()" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;font-family:Calibri,Arial,sans-serif">Bekor qilish</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: 8 xonali kodni kiritish -->
+    <div class="modal-step" id="step2">
+      <div class="modal-icon">✉️</div>
+      <h3>Kodni kiriting</h3>
+      <p><span id="codeEmailLabel"></span> manziliga yuborilgan 8 xonali kodni kiriting.</p>
+      <div class="modal-input-wrap">
+        <span class="modal-input-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <input type="text" inputmode="numeric" maxlength="8" class="modal-input" id="codeInput" placeholder="00000000" style="letter-spacing:3px;font-weight:700;text-align:center" />
+      </div>
+      <div class="modal-err" id="codeErr">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="codeErrText">Xatolik yuz berdi</span>
+      </div>
+      <button type="button" class="btn-modal" id="verifyCodeBtn" onclick="verifyResetCode()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Tasdiqlash
+      </button>
+      <div style="text-align:center;margin-top:16px">
+        <button type="button" onclick="backToStep1()" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;font-family:Calibri,Arial,sans-serif">Ortga qaytish</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Yangi parol o'rnatish -->
+    <div class="modal-step" id="step3">
+      <div class="modal-icon">🔒</div>
+      <h3>Yangi parol o'rnating</h3>
+      <p>Hisobingiz uchun yangi parol kiriting.</p>
+      <div class="modal-input-wrap">
+        <span class="modal-input-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <input type="password" class="modal-input has-right" id="newPassInput" placeholder="Yangi parol" autocomplete="new-password" />
+        <button type="button" class="modal-eye" onclick="toggleModalPass('newPassInput','newPassEyeOpen','newPassEyeClosed')" aria-label="Parolni ko'rsatish yoki yashirish">
+          <svg id="newPassEyeOpen" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="newPassEyeClosed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-input-wrap">
+        <span class="modal-input-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <input type="password" class="modal-input has-right" id="newPassInput2" placeholder="Yangi parolni tasdiqlang" autocomplete="new-password" />
+        <button type="button" class="modal-eye" onclick="toggleModalPass('newPassInput2','newPass2EyeOpen','newPass2EyeClosed')" aria-label="Parolni ko'rsatish yoki yashirish">
+          <svg id="newPass2EyeOpen" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="newPass2EyeClosed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-err" id="newPassErr">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="newPassErrText">Xatolik yuz berdi</span>
+      </div>
+      <div class="modal-success" id="newPassSuccess">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Parol muvaffaqiyatli yangilandi!
+      </div>
+      <button type="button" class="btn-modal" id="savePassBtn" onclick="saveNewPassword()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Parolni saqlash
+      </button>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

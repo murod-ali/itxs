@@ -1,0 +1,1794 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Buyurtmachilar sahifasi</title>
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#13131c; --surface2:#1a1a26; --surface3:#1f1f2e;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --accent:#4f8ef7; --accent2:#a855f7; --green:#34d399; --orange:#fb923c; --red:#f87171;
+  --text:#f0f0f5; --muted:#6b6b80; --sidebar:220px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Calibri, Arial, sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:var(--sidebar);min-height:100vh;background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:28px 16px;position:fixed;left:0;top:0;z-index:50;
+}
+.sidebar-logo{
+  font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:800;letter-spacing:2px;
+  text-transform:uppercase;color:var(--accent);padding:0 8px;margin-bottom:36px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.sidebar-logo span{color:var(--muted)}
+.superadmin-return{
+  display:none;align-items:center;justify-content:center;gap:8px;width:100%;
+  padding:10px 12px;margin:0 0 18px;border-radius:10px;border:1px solid rgba(245,158,11,0.26);
+  background:rgba(245,158,11,0.1);color:#f59e0b;font-size:16px;font-weight:700;cursor:pointer;
+}
+.superadmin-return.show{display:flex}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;
+  color:var(--muted);font-size:16px;font-weight:500;cursor:pointer;transition:all 0.2s;
+  margin-bottom:4px;text-decoration:none;user-select:none;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(79,142,247,0.12);color:var(--accent)}
+.nav-item svg{flex-shrink:0}
+.sidebar-footer{margin-top:auto}
+.user-chip{
+  display:flex;align-items:center;gap:10px;padding:12px;
+  background:var(--surface2);border-radius:12px;margin-bottom:12px;
+}
+button.user-chip{width:100%;border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;transition:all 0.2s}
+button.user-chip:hover,button.user-chip.active{border-color:rgba(79,142,247,0.32);background:rgba(79,142,247,0.08)}
+.avatar{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:Calibri, Arial, sans-serif;font-weight:800;font-size:16px;color:#fff;flex-shrink:0;
+}
+.user-info .name{font-size:16px;font-weight:600}
+.user-info .role{font-size:16px;color:var(--muted)}
+.btn-logout{
+  width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:none;color:var(--muted);font-size:16px;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+.help-side-btn{
+  width:100%;padding:10px;border-radius:10px;border:1px solid rgba(79,142,247,0.24);
+  background:rgba(79,142,247,0.1);color:var(--accent);font-size:16px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;
+}
+.help-side-btn:hover{background:rgba(79,142,247,0.2)}
+
+/* ===== MAIN ===== */
+.main{margin-left:var(--sidebar);flex:1;padding:32px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.page-title{font-family:Calibri, Arial, sans-serif;font-size:22px;font-weight:800}
+.page-sub{color:var(--muted);font-size:16px;margin-top:2px}
+.badge-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:6px;background:var(--accent);
+  color:#fff;font-size:16px;font-weight:700;margin-left:6px;
+}
+
+/* Platform cards */
+.platform-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+.platform-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:24px 20px;cursor:pointer;transition:all 0.25s;text-align:center;
+}
+.platform-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
+.platform-card.selected{border-color:var(--accent);background:rgba(79,142,247,0.06)}
+.platform-icon{font-size:32px;margin-bottom:10px}
+.platform-name{font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700}
+
+/* Packages */
+.packages-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.back-btn{
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);
+  border-radius:10px;padding:8px 14px;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;transition:all 0.2s;
+}
+.back-btn:hover{border-color:var(--border2);color:var(--text)}
+.packages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.pkg-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;
+  cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;
+}
+.pkg-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  opacity:0;transition:opacity 0.2s;
+}
+.pkg-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.pkg-card:hover::before{opacity:1}
+.pkg-badge{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;
+  font-size:16px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;
+  margin-bottom:14px;
+}
+.badge-bronze{background:rgba(205,127,50,0.15);color:#cd7f32}
+.badge-silver{background:rgba(192,192,192,0.15);color:#c0c0c0}
+.badge-platinum{background:rgba(229,228,226,0.15);color:#e5e4e2}
+.badge-custom{background:rgba(79,142,247,0.15);color:var(--accent)}
+.pkg-name{font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:800;margin-bottom:8px}
+.pkg-type{color:var(--muted);font-size:16px;margin-bottom:16px}
+.pkg-count{font-size:28px;font-weight:700;font-family:Calibri, Arial, sans-serif;margin-bottom:4px}
+.pkg-count span{font-size:16px;color:var(--muted);font-weight:400}
+.pkg-price{
+  font-family:Calibri, Arial, sans-serif;font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.pkg-note{
+  margin-top:14px;padding:10px 12px;
+  background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.28);
+  border-radius:10px;font-size:15px;line-height:1.45;color:var(--accent);font-weight:600;
+}
+
+/* Modals */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:36px;width:100%;max-width:480px;
+  animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  max-height:90vh;overflow-y:auto;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-family:Calibri, Arial, sans-serif;font-size:18px;font-weight:800}
+.modal-close{
+  background:var(--surface2);border:none;color:var(--muted);width:32px;height:32px;
+  border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.modal-close:hover{background:var(--surface3);color:var(--text)}
+
+/* Form elements */
+.form-group{margin-bottom:18px}
+.form-group label{
+  display:block;font-size:16px;font-weight:600;letter-spacing:0.8px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
+.form-input{
+  width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:12px;color:var(--text);font-family:Calibri, Arial, sans-serif;font-size:16px;
+  outline:none;transition:border-color 0.2s;
+}
+.form-input:focus{border-color:var(--accent)}
+.form-input.error{border-color:var(--red)}
+.selected-pkg-info{
+  background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--border);
+}
+.selected-pkg-info .pkg-label{font-size:16px;color:var(--muted)}
+.selected-pkg-info .pkg-val{font-family:Calibri, Arial, sans-serif;font-weight:700;font-size:16px}
+
+/* Payment */
+.card-display{
+  background:linear-gradient(135deg,#1e1e2e,#2a2a40);
+  border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center;
+}
+.card-number{font-family:Calibri, Arial, sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;margin-bottom:8px}
+.card-holder{font-size:16px;color:var(--muted)}
+.upload-area{
+  display: block; /* Muammoni aynan mana shu qator 100% tuzatadi */
+  width: 100%;
+  border: 2px dashed rgba(255, 255, 255, 0.2); /* Chiziqlar qorong'uda chiroyli ko'rinishi uchun biroz yorqinroq qildim */
+  border-radius:14px;
+  padding: 24px 16px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-bottom:16px;
+  position:relative;
+  outline:none;
+  box-sizing: border-box;
+}
+.upload-area:hover, .upload-area:focus{border-color:var(--accent);background:rgba(79,142,247,0.04)}
+.upload-area.has-file{border-color:var(--green);background:rgba(52,211,153,0.04)}
+.upload-icon{font-size:28px;margin-bottom:10px}
+.upload-text{color:var(--muted);font-size:16px}
+.upload-text strong{color:var(--accent)}
+.preview-img{max-width:100%;max-height:120px;border-radius:8px;margin-top:10px;display:none;border:1px solid var(--border2)}
+
+/* Buttons */
+.btn{
+  padding:13px 24px;border-radius:12px;border:none;font-family:Calibri, Arial, sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;
+  align-items:center;gap:8px;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  box-shadow:0 6px 24px rgba(79,142,247,0.35);
+}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(79,142,247,0.5)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-full{width:100%;justify-content:center}
+.btn-outline{
+  background:none;border:1px solid var(--border);color:var(--muted);
+}
+.btn-outline:hover{border-color:var(--border2);color:var(--text)}
+
+/* Orders table */
+.orders-list{display:flex;flex-direction:column;gap:12px}
+.order-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  transition:border-color 0.2s;flex-wrap:wrap;
+}
+.order-card:hover{border-color:var(--border2)}
+.order-left{display:flex;align-items:center;gap:14px}
+.order-platform-icon{font-size:24px}
+.order-info .order-name{font-weight:600;font-size:16px;margin-bottom:3px}
+.order-info .order-meta{font-size:16px;color:var(--muted)}
+.status-badge{
+  padding:5px 12px;border-radius:20px;font-size:16px;font-weight:600;
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.status-pending{background:rgba(251,146,60,0.12);color:var(--orange)}
+.status-waiting{background:rgba(79,142,247,0.12);color:var(--accent)}
+.status-done{background:rgba(52,211,153,0.12);color:var(--green)}
+
+/* Profile */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.profile-field{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px}
+.profile-field .field-label{font-size:16px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.profile-field .field-value{font-size:16px;font-weight:500}
+.secret-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.eye-mini{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.eye-mini:hover{color:var(--text);border-color:var(--border2)}
+.profile-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-top:16px}
+.profile-msg{display:none;border-radius:12px;padding:12px 14px;font-size:16px;margin-bottom:12px}
+.profile-msg.show{display:block}
+.profile-msg.ok{background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--green)}
+.profile-msg.err{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.btn-link{display:none;text-decoration:none}
+.profile-avatar{
+  width:80px;height:80px;border-radius:20px;margin:0 auto 20px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:Calibri, Arial, sans-serif;font-weight:800;font-size:28px;color:#fff;
+}
+
+/* Stat cards */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px}
+.stat-label{font-size:16px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.stat-value{font-family:Calibri, Arial, sans-serif;font-size:26px;font-weight:800}
+.stat-value.blue{color:var(--accent)}
+.stat-value.green{color:var(--green)}
+.stat-value.orange{color:var(--orange)}
+
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:44px;margin-bottom:16px}
+.empty h4{font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.empty p{font-size:16px}
+
+/* Mobile menu toggle */
+.menu-toggle{
+  display:none;position:fixed;top:16px;left:16px;z-index:300;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:10px;cursor:pointer;color:var(--text);
+}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:20px;padding-top:60px}
+  .menu-toggle{display:flex}
+  .profile-grid{grid-template-columns:1fr}
+  .platform-grid{grid-template-columns:1fr 1fr}
+}
+.mini-icon{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.16em;flex-shrink:0}.stat-icon .mini-icon,.empty-icon .mini-icon,.upload-icon .mini-icon,.platform-icon .mini-icon,.platform-icon-big .mini-icon,.history-icon .mini-icon{width:1.25em;height:1.25em}.icon-title{display:inline-flex;align-items:center;gap:8px}.icon-title .mini-icon{width:1em;height:1em}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()">
+  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo" id="sidebarLogoName">Social<span>Boost</span></div>
+  <button class="superadmin-return" id="superadminReturnBtn" onclick="returnToSuperadmin()">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Orqaga
+  </button>
+  <nav>
+    <a class="nav-item active" onclick="showPage('home')">
+      <span style="font-size:18px;line-height:1;flex-shrink:0">🏠</span>
+      Asosiy
+    </a>
+    <a class="nav-item" onclick="showPage('packages')">
+      <span style="font-size:18px;line-height:1;flex-shrink:0">📦</span>
+      Paketlar
+    </a>
+    <a class="nav-item" onclick="showPage('pending')">
+      <span style="font-size:18px;line-height:1;flex-shrink:0">⏳</span>
+      <div>Kutishdagi<br>Buyurtmalar</div>
+      <span class="badge-count" id="pendingCount">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('progress')">
+      <span style="font-size:18px;line-height:1;flex-shrink:0">⚙️</span>
+      <div>Jarayondagi<br>Buyurtmalar</div>
+      <span class="badge-count" id="progressCount">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('proofs')">
+      <span style="font-size:18px;line-height:1;flex-shrink:0">📸</span>
+      <div>Screenshotlarni<br>Tasdiqlash</div>
+      <span class="badge-count" id="proofsCount">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('done')">
+      <span style="font-size:18px;line-height:1;flex-shrink:0">✅</span>
+      <div>Bajarilgan<br>Buyurtmalar</div>
+      <span class="badge-count" id="doneCount" style="background:var(--green)">0</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="help-side-btn" onclick="openHelp()">
+      <span style="font-size:16px;line-height:1">🎧</span>
+      Yordam
+    </button>
+    <button class="user-chip" id="profileShortcut" onclick="showPage('profile')">
+      <div class="avatar" id="sidebarAvatar" style="font-size:20px;display:flex;align-items:center;justify-content:center">
+        👤
+      </div>
+      <div class="user-info">
+        <div class="name">Shaxsiy kabinet</div>
+        <div class="role" id="sidebarName">Buyurtmachi</div>
+      </div>
+    </button>
+    <button class="btn-logout" onclick="logout()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Chiqish
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Asosiy sahifa</div>
+      <div class="page-sub">Platformani tanlang</div>
+    </div>
+  </div>
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-label">Jami buyurtmalar</div><div class="stat-value blue" id="statTotal">0</div></div>
+    <div class="stat-card"><div class="stat-label">Kutishdagi Buyurtmalar</div><div class="stat-value orange" id="statPending">0</div></div>
+    <div class="stat-card"><div class="stat-label">Bajarilgan</div><div class="stat-value green" id="statDone">0</div></div>
+  </div>
+  <div class="platform-grid">
+    <div class="platform-card" onclick="selectPlatform('Telegram')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div><div class="platform-name">Telegram</div></div>
+    <div class="platform-card" onclick="selectPlatform('Instagram')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></div><div class="platform-name">Instagram</div></div>
+    <div class="platform-card" onclick="selectPlatform('YouTube')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 16 12 10 15 10 9"/></svg></div><div class="platform-name">YouTube</div></div>
+    <div class="platform-card" onclick="selectPlatform('TikTok')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="platform-name">TikTok</div></div>
+  </div>
+</div>
+
+<!-- PACKAGES PAGE -->
+<div class="page" id="page-packages">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="packagesTitle">Paketlar</div>
+      <div class="page-sub" id="packagesSubtitle">Platformani tanlang</div>
+    </div>
+  </div>
+  <div id="platformSelector">
+    <div class="platform-grid">
+      <div class="platform-card" onclick="selectPlatform('Telegram')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div><div class="platform-name">Telegram</div></div>
+      <div class="platform-card" onclick="selectPlatform('Instagram')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></div><div class="platform-name">Instagram</div></div>
+      <div class="platform-card" onclick="selectPlatform('YouTube')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 16 12 10 15 10 9"/></svg></div><div class="platform-name">YouTube</div></div>
+      <div class="platform-card" onclick="selectPlatform('TikTok')"><div class="platform-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="platform-name">TikTok</div></div>
+    </div>
+  </div>
+  <div id="packagesList" style="display:none">
+    <div class="packages-header">
+      <button class="back-btn" onclick="backToPlatforms()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Orqaga
+      </button>
+      <span id="selectedPlatformName" style="font-family:Calibri, Arial, sans-serif;font-weight:700;font-size:16px"></span>
+    </div>
+    <div class="packages-grid" id="packagesGrid"></div>
+  </div>
+</div>
+
+<!-- PENDING ORDERS -->
+<div class="page" id="page-pending">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Kutishdagi buyurtmalar</div>
+      <div class="page-sub">Bu bo'limda Buyurtmachi tanlagan va to'lov qilgan va tasdiqlanishi kutilayotgan buyurtmalar bo'ladi.</div>
+    </div>
+  </div>
+  <div class="orders-list" id="pendingList"></div>
+</div>
+
+<!-- IN PROGRESS ORDERS -->
+<div class="page" id="page-progress">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Jarayondagi buyurtmalar</div>
+      <div class="page-sub">Hozirda bajarilayotgan buyurtmalaringiz ro'yxati</div>
+    </div>
+  </div>
+  <div class="orders-list" id="progressList"></div>
+</div>
+
+<!-- WORKER SCREENSHOTS -->
+<div class="page" id="page-proofs">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Bajarilgan ish screenshotlari</div>
+      <div class="page-sub">Ish bajaruvchi yuborgan natijani tekshiring. Tasdiqlangandan keyin to'lov worker balansiga o'tadi.</div>
+    </div>
+  </div>
+  <div class="orders-list" id="proofsList"></div>
+</div>
+
+<!-- DONE ORDERS -->
+<div class="page" id="page-done">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Bajarilgan buyurtmalar</div>
+      <div class="page-sub">Muvaffaqiyatli tugallangan</div>
+    </div>
+  </div>
+  <div class="orders-list" id="doneList"></div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div class="page" id="page-profile">
+  <div class="topbar">
+    <div><div class="page-title">Shaxsiy kabinet</div></div>
+  </div>
+  <div style="max-width:560px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="profile-avatar" id="profileAvatar">J</div>
+      <div style="font-family:Calibri, Arial, sans-serif;font-size:20px;font-weight:800" id="profileName">Jasur</div>
+      <div style="color:var(--muted);font-size:16px;margin-top:4px">Buyurtmachi</div>
+      <div style="color:var(--accent);font-size:14px;font-weight:700;margin-top:4px;letter-spacing:1px;" id="profileCustomerId">ID: Yuklanmoqda...</div>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-field"><div class="field-label">Ism</div><div class="field-value" id="pfName">-</div></div>
+      <div class="profile-field"><div class="field-label">Login</div><div class="field-value" id="pfLogin">-</div></div>
+      <div class="profile-field">
+        <div class="field-label">Parol</div>
+        <div class="secret-row">
+          <div class="field-value" id="pfPassword">********</div>
+          <button class="eye-mini" type="button" onclick="revealProfilePassword()" title="Parolni 10 soniyaga ko'rsatish">
+            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="profile-field"><div class="field-label">Gmail</div><div class="field-value" id="pfEmail">-</div></div>
+    </div>
+    <div class="profile-box">
+      <div style="font-family:Calibri, Arial, sans-serif;font-weight:700;margin-bottom:16px">Gmailni almashtirish</div>
+      <div class="form-group">
+        <label>Yangi Gmail</label>
+        <input type="email" class="form-input" id="newEmail" placeholder="example@gmail.com">
+      </div>
+      <div class="profile-msg" id="emailMsg"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="sendEmailVerification()">Tasdiqlash havolasini yuborish</button>
+        <a class="btn btn-outline btn-link" id="emailVerifyLink" target="_blank" rel="noopener noreferrer">Tasdiqlash havolasini ochish</a>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px">
+      <div style="font-family:Calibri, Arial, sans-serif;font-weight:700;margin-bottom:16px">Parolni o'zgartirish</div>
+      <div class="form-group">
+        <label>Yangi parol</label>
+        <input type="password" class="form-input" id="newPass" placeholder="Kamida 8 belgi">
+      </div>
+      <div class="form-group">
+        <label>Parolni tasdiqlang</label>
+        <input type="password" class="form-input" id="newPass2" placeholder="Qayta kiriting">
+      </div>
+      <div style="color:var(--red);font-size:16px;display:none;margin-bottom:12px" id="passChangeErr">Parollar mos emas</div>
+      <button class="btn btn-primary" onclick="changePassword()">Parolni saqlash</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Buyurtma berish</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">x</button>
+    </div>
+    <div class="selected-pkg-info" id="selectedPkgInfo" style="flex-direction:column;gap:10px;align-items:stretch">
+      <div style="display:flex;justify-content:space-between">
+        <div><div class="pkg-label">Paket nomi</div><div class="pkg-val" id="modalPkgName">-</div></div>
+        <div style="text-align:right"><div class="pkg-label">Narx</div><div class="pkg-val" id="modalPkgPrice">-</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:10px">
+        <div><div class="pkg-label">Xizmat turi</div><div class="pkg-val" id="modalPkgType">-</div></div>
+        <div style="text-align:right"><div class="pkg-label">Xizmat soni</div><div class="pkg-val" id="modalPkgCount">-</div></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label id="orderLinkLabel">Havola (Link)</label>
+      <input type="url" class="form-input" id="orderLink" placeholder="https://t.me/..." />
+      <div style="color:var(--red);font-size:14px;margin-top:6px;display:none;line-height:1.4" id="linkErr">Iltimos to'g'ri link kiriting</div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="proceedToPayment()">To'lovga o'tish</button>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">To'lov</div>
+      <button class="modal-close" onclick="closeModal('paymentModal')">x</button>
+    </div>
+    <div class="card-display">
+      <div style="font-size:16px;color:var(--muted);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase">Karta raqami</div>
+      <div class="card-number" id="paymentCardNum">Karta kiritilmagan</div>
+      <div class="card-holder" id="paymentCardHolder">Superadmin kartasi</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:var(--muted)">To'lov summasi</span>
+        <span style="font-weight:700" id="payAmount">-</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--muted)">Paket</span>
+        <span style="font-weight:600" id="payPkg">-</span>
+      </div>
+    </div>
+    <div style="font-size:16px;color:var(--muted);margin-bottom:12px">Yuqoridagi kartaga pul o'tkazing va chekni yuklang (Ctrl+V orqali rasmni to'g'ridan-to'g'ri joylash ham mumkin):</div>
+    
+    <label for="checkUpload" class="upload-area" id="uploadArea" tabindex="0">
+      <div class="upload-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <div class="upload-text"><strong>Screenshot yuborish</strong><br>Bosing yoki nusxalangan rasmni joylang (Paste)</div>
+      <img id="uploadPreview" class="preview-img" alt="Screenshot preview">
+    </label>
+    
+    <input type="file" id="checkUpload" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
+    <div style="color:var(--green);font-size:16px;display:none;margin-bottom:12px;align-items:center;gap:6px" id="fileOk">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="fileName">fayl.jpg</span>
+    </div>
+    <button class="btn btn-primary btn-full" id="payBtn" disabled onclick="submitPayment()">Screenshot yuborish</button>
+  </div>
+</div>
+
+<!-- SUCCESS ORDER MODAL -->
+<div class="modal-overlay" id="successOrderModal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:32px;margin-bottom:16px;font-weight:800;color:var(--green)"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="modal-title" style="margin-bottom:10px">Buyurtma qabul qilindi!</div>
+    <p style="color:var(--muted);font-size:16px;margin-bottom:24px">Admin tekshirib, yaqin orada tasdiqlaydi. Tasdiqlangach ish bajaruvchilar sahifasiga yuboriladi.</p>
+    <button class="btn btn-primary btn-full" onclick="closeModal('successOrderModal');showPage('pending')">Buyurtmalarimga</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+
+// ===== SBApp yordamchi ob'ekt =====
+const SBApp = {
+  state: { packages:[], cards:[], orders:[], workerProofs:[] },
+  _intervals: [],
+  number: v => parseInt(v)||0,
+  escapeHtml: s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),
+  formatDate: ts => ts ? new Date(ts).toLocaleString('uz') : '-',
+  toMillis: ts => ts ? new Date(ts).getTime() : 0,
+  formatPrice: p => (parseInt(p)||0).toLocaleString() + " so'm",
+  validateAllowedUrl: url => url.startsWith('https://'),
+  cleanupListeners(){ this._intervals.forEach(clearInterval); this._intervals=[]; },
+  iconMap: {
+    Telegram:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>`,
+    Instagram:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>`,
+    YouTube:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 16 12 10 15 10 9"/></svg>`,
+    TikTok:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
+  },
+  async uploadScreenshot(file){
+    const IMGBB_KEY = typeof IMGBB_API_KEY !== 'undefined' ? IMGBB_API_KEY : '';
+    if(!IMGBB_KEY || IMGBB_KEY === 'API-KEY-UCHUN-MAYDON'){
+      throw new Error("ImgBB API kaliti sozlanmagan.");
+    }
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {method:'POST',body:formData});
+    const data = await res.json();
+    if(!data.success) throw new Error("Rasm yuklashda xatolik.");
+    return data.data.url;
+  },
+  async createCustomerOrder({profile, pkg, link, screenshotFile, card}){
+    const screenshotUrl = await this.uploadScreenshot(screenshotFile);
+    // Buyurtma yaratish
+    const {data: order, error} = await sb.from('buyurtmalar').insert({
+      customer_id: profile.id,
+      paket_id: pkg.id,
+      havola: link,
+      holat: 'pending',
+      accepted_workers: 0,
+      needed_workers: this.number(pkg.count)
+    }).select().single();
+    if(error) throw error;
+    // Chek saqlash
+    const {error: checkError} = await sb.from('cheklar').insert({
+      buyurtma_id: order.id,
+      customer_id: profile.id,
+      rasm_url: screenshotUrl,
+      holat: 'kutilmoqda'
+    });
+    if(checkError){
+      await sb.from('buyurtmalar').delete().eq('id', order.id);
+      throw new Error("Screenshot superadmin paneliga yuborilmadi. Qayta urinib ko'ring.");
+    }
+    await sb.from('buyurtmalar').update({ payment_status: 'chek_yuborildi' }).eq('id', order.id);
+    return order.id;
+  }
+};
+
+const PLATFORM_ICONS = SBApp.iconMap;
+
+let currentUser = null;
+let currentPkg = null;
+let currentPlatform = null;
+let hasCheckFile = false;
+let passwordRevealTimer = null;
+let selectedPaymentFile = null;
+let currentPaymentOrderId = null;
+
+function generateCustomerID() {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = 'B-';
+  for (let i = 0; i < 10; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+  return result;
+}
+
+async function ensureUserHasID(profile) {
+  if (!profile.customer_id) {
+    const newID = generateCustomerID();
+    profile.customer_id = newID;
+    await sb.from('users').update({ customer_id: newID }).eq('id', profile.id);
+  }
+  return profile;
+}
+
+function getSuperadminPreviewRole(){
+  const queryRole = new URLSearchParams(window.location.search).get('superadmin_preview');
+  if(queryRole === 'customer' && sessionStorage.getItem('sb_admin_auth') === '1'){
+    sessionStorage.setItem('sb_superadmin_preview', 'customer');
+    history.replaceState(null, '', window.location.pathname + window.location.hash);
+    return 'customer';
+  }
+  return sessionStorage.getItem('sb_superadmin_preview');
+}
+
+function isSuperadminPreview(){
+  return getSuperadminPreviewRole() === 'customer'
+    && sessionStorage.getItem('sb_admin_auth') === '1';
+}
+
+function returnToSuperadmin(){
+  sessionStorage.removeItem('sb_superadmin_preview');
+  window.location.href = 'admin.html';
+}
+
+function openHelp(){
+  const link = 'https://t.me/Aliyevacounti';
+  if(link) window.open(link, '_blank');
+  else alert('Yordam havolasi kiritilmagan.');
+}
+
+async function startCustomerRealtime(){
+  SBApp.cleanupListeners();
+
+  async function fetchAll(){
+    // Paketlar
+    const {data: pkgs} = await sb.from('paketlar').select('*');
+    SBApp.state.packages = (pkgs||[]).map(p=>({
+      ...p, id:p.id,
+      name: p.xizmat_turi,
+      platform: p.platforma,
+      type: p.xizmat_turi,
+      count: p.soni,
+      price: p.narx,
+      reward: p.ball
+    }));
+
+    // Admin kartalar (Supabase settings, localStorage fallback bilan)
+    let localCards = JSON.parse(localStorage.getItem('sa_cards')||'[]');
+    try{
+      const {data: cardSetting} = await sb.from('settings').select('value').eq('key','payment_cards').single();
+      if(cardSetting?.value){
+        localCards = JSON.parse(cardSetting.value);
+        localStorage.setItem('sa_cards', JSON.stringify(localCards));
+      }
+    }catch(e){ /* settings hali yo'q yoki bo'sh, localStorage bilan davom etamiz */ }
+    SBApp.state.cards = localCards;
+
+    // Buyurtmalar
+    const {data: orders} = await sb.from('buyurtmalar').select('*, paketlar(*), cheklar(*)').eq('customer_id', currentUser.id);
+    SBApp.state.orders = (orders||[]).filter(o=>o.paketlar).map(o=>({
+      ...o, id:o.id,
+      customerUid: o.customer_id,
+      customerId: currentUser.customer_id,
+      packageId: o.paket_id,
+      pkgName: o.paketlar?.xizmat_turi||'',
+      platform: o.paketlar?.platforma||'',
+      type: o.paketlar?.xizmat_turi||'',
+      count: o.paketlar?.soni||1,
+      neededWorkers: o.needed_workers||1,
+      acceptedWorkers: o.accepted_workers||0,
+      price: o.paketlar?.narx||0,
+      reward: o.paketlar?.ball||0,
+      link: o.havola,
+      status: o.holat==='pending'?'waiting_admin': o.holat==='active'?'active': o.holat==='completed'?'done':'waiting_admin',
+      createdAt: o.created_at,
+      updatedAt: o.updated_at || o.created_at
+    }));
+
+    const orderById = Object.fromEntries(SBApp.state.orders.map(order => [String(order.id), order]));
+    const orderIds = Object.keys(orderById);
+    let proofRows = [];
+    if(orderIds.length){
+      const {data, error} = await sb.from('bajarilgan_ishlar')
+        .select('*')
+        .in('buyurtma_id', orderIds);
+      if(error) console.warn("Worker screenshotlarini yuklashda xato:", error);
+      proofRows = data || [];
+    }
+
+    const workerIds = [...new Set(proofRows.map(row => row.worker_id).filter(Boolean))];
+    let workerById = {};
+    if(workerIds.length){
+      const {data: workers} = await sb.from('users')
+        .select('id,ism,user_id')
+        .in('id', workerIds);
+      workerById = Object.fromEntries((workers || []).map(worker => [String(worker.id), worker]));
+    }
+
+    SBApp.state.workerProofs = proofRows
+      .filter(row => row.screenshot_url)
+      .map(row => {
+        const order = orderById[String(row.buyurtma_id)] || {};
+        const worker = workerById[String(row.worker_id)] || {};
+        return {
+          ...row,
+          id: row.id,
+          orderId: row.buyurtma_id,
+          workerId: row.worker_id,
+          workerName: worker.ism || 'Ish bajaruvchi',
+          workerPublicId: worker.user_id || '',
+          screenshotUrl: row.screenshot_url,
+          status: row.holat === 'kutilmoqda' ? 'pending_review'
+            : row.holat === 'tasdiqlandi' ? 'approved'
+            : row.holat === 'rad_etildi' ? 'rejected' : 'accepted',
+          platform: order.platform || '',
+          pkgName: order.pkgName || '',
+          reward: order.reward || 0,
+          createdAt: row.created_at
+        };
+      });
+
+    SBApp.state.orders = SBApp.state.orders.map(order => ({
+      ...order,
+      approvedScreenshots: SBApp.state.workerProofs.filter(proof =>
+        String(proof.orderId) === String(order.id) && proof.status === 'approved'
+      ).length
+    }));
+
+    refreshCustomerData();
+  }
+
+  fetchAll();
+  const interval = setInterval(fetchAll, 15000);
+  SBApp._intervals.push(interval);
+}
+
+// ===== AUTH INIT =====
+(async function initDashboard(){
+  // MUHIM: Avval superadmin preview tekshiriladi — getSession dan OLDIN!
+  // Aks holda admin sessiyasi tufayli dashboard.html qayta admin.html ga yo'naltiradi
+  if(isSuperadminPreview()){
+    currentUser = {id:'preview', name:'Superadmin', login:'superadmin_customer', email:'shmurodov200@gmail.com', rol:'customer', customer_id:'B-SUPERADMIN'};
+    renderDashboard();
+    startCustomerRealtime();
+    setupPasteFeature();
+    return;
+  }
+
+  const {data:{session}} = await sb.auth.getSession();
+
+  if(!session){
+    const cached = JSON.parse(localStorage.getItem('sb_current_user')||'null');
+    if(!cached){ window.location.href='login.html'; return; }
+    currentUser = cached;
+    renderDashboard();
+    startCustomerRealtime();
+    setupPasteFeature();
+    return;
+  }
+
+  const {data: profile} = await sb.from('users').select('*').eq('id', session.user.id).single();
+  if(!profile){ window.location.href='login.html'; return; }
+  if(profile.rol === 'admin'){ window.location.href='admin.html'; return; }
+  if(profile.rol === 'worker'){ window.location.href='worker.html'; return; }
+
+  currentUser = await ensureUserHasID({...profile});
+  localStorage.setItem('sb_current_user', JSON.stringify(currentUser));
+  renderDashboard();
+  startCustomerRealtime();
+  setupPasteFeature();
+})();
+
+function renderDashboard(){
+  document.getElementById('superadminReturnBtn')?.classList.toggle('show', isSuperadminPreview());
+  const n = currentUser.ism || currentUser.name || 'Foydalanuvchi';
+  document.getElementById('sidebarLogoName').textContent = n;
+  document.getElementById('sidebarName').textContent = n;
+  document.getElementById('profileAvatar').textContent = n[0].toUpperCase();
+  document.getElementById('profileName').textContent = n;
+  document.getElementById('pfName').textContent = currentUser.ism || currentUser.name || '-';
+  document.getElementById('pfLogin').textContent = currentUser.login || '-';
+  document.getElementById('pfEmail').textContent = currentUser.email || '-';
+  if(document.getElementById('profileCustomerId')) {
+    document.getElementById('profileCustomerId').textContent = `ID: ${currentUser.customer_id || '-'}`;
+  }
+  hideProfilePassword();
+  updateStats();
+}
+
+function refreshCustomerData(){
+  loadLegacyCustomerPackages();
+  loadLegacyCustomerCards();
+  loadLocalCustomerOrders();
+  if(currentPlatform) renderPackages(currentPlatform);
+  updateStats();
+}
+
+// CLIPBOARD PASTE (Nusxalangan rasmni joylash logikasi)
+function setupPasteFeature() {
+  const uploadArea = document.getElementById('uploadArea');
+  if(!uploadArea) return;
+
+  // Maydon fokusda turganda foydalanuvchi Ctrl+V ni bossa ushlash
+  uploadArea.addEventListener('paste', (e) => {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+      const item = items[index];
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const blob = item.getAsFile();
+        const file = new File([blob], `pasted_screenshot_${Date.now()}.png`, { type: blob.type });
+        
+        // Input faylini simulyatsiya qilish
+        selectedPaymentFile = file;
+        hasCheckFile = true;
+        
+        displayPreview(file);
+        e.preventDefault();
+        break;
+      }
+    }
+  });
+
+  // Global sahifa bo'yicha Ctrl+V bosilganda modal ochiq bo'lsa qabul qilish
+  window.addEventListener('paste', (e) => {
+    if(document.getElementById('paymentModal').classList.contains('show')) {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let index in items) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          const file = new File([blob], `pasted_screenshot_${Date.now()}.png`, { type: blob.type });
+          selectedPaymentFile = file;
+          hasCheckFile = true;
+          displayPreview(file);
+          break;
+        }
+      }
+    }
+  });
+}
+
+function displayPreview(file) {
+  document.getElementById('payBtn').disabled = false;
+  document.getElementById('fileOk').style.display = 'flex';
+  document.getElementById('fileName').textContent = file.name;
+  
+  const imgPreview = document.getElementById('uploadPreview');
+  if (imgPreview) {
+    imgPreview.src = URL.createObjectURL(file);
+    imgPreview.style.display = 'block';
+  }
+  document.getElementById('uploadArea').classList.add('has-file');
+}
+
+function handleFileUpload(inp){
+  if(inp.files && inp.files[0]){
+    selectedPaymentFile = inp.files[0];
+    hasCheckFile = true;
+    displayPreview(selectedPaymentFile);
+  }
+}
+
+function loadLegacyCustomerPackages(){
+  localStorage.removeItem('sa_packages');
+  localStorage.removeItem('sb_admin_packages');
+}
+
+function loadLegacyCustomerCards(){
+  const legacyCards = [
+    ...JSON.parse(localStorage.getItem('sa_cards') || '[]'),
+    JSON.parse(localStorage.getItem('sb_admin_card') || 'null')
+  ].filter(Boolean).map(card => ({
+    id: card.firestoreId || card.id || `local_card_${String(card.number || '').replace(/\s/g,'')}`,
+    number: card.number || '',
+    holder: card.holder || card.name || 'Superadmin',
+    bank: card.bank || '',
+    legacyLocal: true
+  }));
+  const merged = [...(SBApp.state.cards || [])];
+  legacyCards.forEach(card => {
+    const clean = String(card.number || '').replace(/\s/g,'');
+    if(clean && !merged.some(item => String(item.number || '').replace(/\s/g,'') === clean)) merged.push(card);
+  });
+  SBApp.state.cards = merged;
+}
+
+function getCustomerOrderKey(){
+  return 'sb_orders_' + (currentUser?.id || currentUser?.login || 'customer');
+}
+
+function getLocalCustomerOrders(){
+  try { return JSON.parse(localStorage.getItem(getCustomerOrderKey()) || '[]'); }
+  catch(error){ return []; }
+}
+
+function loadLocalCustomerOrders(){
+  const packageIds = new Set((SBApp.state.packages || []).map(pkg => String(pkg.id)));
+  const localOrders = getLocalCustomerOrders().filter(order => packageIds.has(String(order.packageId)));
+  SBApp.state.orders = mergeOrders(SBApp.state.orders || [], localOrders);
+}
+
+function mergeOrders(primary, fallback){
+  const merged = [...primary];
+  fallback.forEach(order => {
+    if(!merged.some(item => String(item.id) === String(order.id))) merged.push(order);
+  });
+  return merged;
+}
+
+function saveLocalCustomerOrder(order){
+  const orders = getLocalCustomerOrders();
+  const idx = orders.findIndex(item => String(item.id) === String(order.id));
+  if(idx > -1) orders[idx] = order;
+  else orders.push(order);
+  localStorage.setItem(getCustomerOrderKey(), JSON.stringify(orders));
+  SBApp.state.orders = mergeOrders(SBApp.state.orders || [], [order]);
+  updateStats();
+}
+
+function getOrders(){
+  return SBApp.state.orders.slice().sort((a,b)=>SBApp.toMillis(b.createdAt)-SBApp.toMillis(a.createdAt));
+}
+
+function updateStats(){
+  const orders = getOrders();
+  const pending = orders.filter(o=>o.status==='waiting_admin' || o.status==='pending_payment' || o.status==='rejected');
+  const progress = orders.filter(o=>o.status==='active' || o.status==='in_progress' || o.status==='pending_review');
+  const done = orders.filter(o=>o.status==='done');
+  const pendingProofs = (SBApp.state.workerProofs || []).filter(proof=>proof.status==='pending_review');
+  document.getElementById('statTotal').textContent = orders.length;
+  document.getElementById('statPending').textContent = pending.length;
+  document.getElementById('statDone').textContent = done.length;
+  document.getElementById('pendingCount').textContent = pending.length;
+  const progEl = document.getElementById('progressCount');
+  if(progEl) progEl.textContent = progress.length;
+  const doneEl = document.getElementById('doneCount');
+  if(doneEl) doneEl.textContent = done.length;
+  const proofsEl = document.getElementById('proofsCount');
+  if(proofsEl) proofsEl.textContent = pendingProofs.length;
+  renderPendingOrders();
+  renderProgressOrders();
+  renderWorkerProofs();
+  renderDoneOrders();
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('profileShortcut')?.classList.remove('active');
+  document.getElementById('page-'+name).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  const map = {home:0,packages:1,pending:2,progress:3,proofs:4,done:5};
+  items[map[name]]?.classList.add('active');
+  if(name==='profile') document.getElementById('profileShortcut')?.add('active');
+  if(name==='home') updateStats();
+  if(window.innerWidth<=768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function selectPlatform(p){
+  currentPlatform = p;
+  showPage('packages');
+  document.getElementById('platformSelector').style.display='none';
+  document.getElementById('packagesList').style.display='block';
+  document.getElementById('packagesTitle').innerHTML = PLATFORM_ICONS[p]+' '+p;
+  document.getElementById('packagesSubtitle').textContent = 'Paketni tanlang';
+  document.getElementById('selectedPlatformName').innerHTML = PLATFORM_ICONS[p]+' '+p;
+  renderPackages(p);
+}
+
+function backToPlatforms(){
+  document.getElementById('platformSelector').style.display='block';
+  document.getElementById('packagesList').style.display='none';
+  document.getElementById('packagesTitle').textContent='Paketlar';
+  document.getElementById('packagesSubtitle').textContent='Platformani tanlang';
+}
+
+function renderPackages(platform){
+  const grid = document.getElementById('packagesGrid');
+  const pkgs = SBApp.state.packages
+    .filter(p=>p.platform===platform)
+    .map(p=>({...p, priceLabel:SBApp.formatPrice(p.price)}));
+  const tierMap = {bronze:'badge-bronze',silver:'badge-silver',platinum:'badge-platinum',custom:'badge-custom'};
+  const tierLabel = {bronze:'Bronza',silver:'Kumush',platinum:'Platina',custom:'Maxsus'};
+  
+  if(!pkgs.length){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/></svg></div><h4>${SBApp.escapeHtml(platform)} uchun paket yo'q</h4><p>Superadmin paket qo'shganda shu yerda chiqadi</p></div>`;
+    return;
+  }
+  
+  // Har bir paket uchun kutishdagi buyurtmani tekshirish
+  const allOrders = SBApp.state.orders || [];
+
+  grid.innerHTML = pkgs.map((p, idx) => {
+    // Bu paketga tegishli "waiting_admin" yoki "pending_payment" statusdagi buyurtma bormi?
+    const pendingOrder = allOrders.find(o =>
+      (String(o.packageId) === String(p.id) || (o.pkgName === p.name && o.platform === p.platform)) &&
+      (o.status === 'waiting_admin' || o.status === 'pending_payment') &&
+      o.customerUid === currentUser.id
+    );
+
+    const btnHtml = pendingOrder
+      ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px">
+           <button class="btn btn-full pay-now-btn" data-index="${idx}" data-orderid="${pendingOrder.id}"
+             style="min-height:52px;font-size:16px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:12px;font-weight:700;cursor:pointer;justify-content:center">
+             To'lovga o'tish
+           </button>
+           <button class="btn btn-full cancel-order-btn" data-orderid="${pendingOrder.id}"
+             style="min-height:52px;font-size:16px;background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.28);border-radius:12px;font-weight:700;cursor:pointer;justify-content:center">
+             Buyurtmani bekor qilish
+           </button>
+         </div>`
+      : `<button class="btn btn-primary btn-full buy-pkg-btn" data-index="${idx}"
+           style="margin-top:18px;min-height:52px;font-size:18px">
+           Buyurtma berish
+         </button>`;
+
+    return `
+    <div class="pkg-card">
+      <div class="pkg-badge ${tierMap[p.tier]||'badge-custom'}">${tierLabel[p.tier]||SBApp.escapeHtml(p.name)}</div>
+      <div class="pkg-name">${SBApp.escapeHtml(p.name)}</div>
+      <div class="pkg-type">${SBApp.escapeHtml(p.type)}</div>
+      <div class="pkg-count">${SBApp.number(p.count).toLocaleString()} <span>ta</span></div>
+      <div class="pkg-price">${p.priceLabel}</div>
+      ${p.note ? `<div class="pkg-note">${SBApp.escapeHtml(p.note)}</div>` : ''}
+      ${btnHtml}
+    </div>`;
+  }).join('');
+
+  // "Buyurtma berish" tugmasi
+  grid.querySelectorAll('.buy-pkg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-index'));
+      if(pkgs[idx]) openOrder(pkgs[idx]);
+    });
+  });
+
+  // "To'lovga o'tish" tugmasi — to'lov modalini ochadi
+  grid.querySelectorAll('.pay-now-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-index'));
+      if(pkgs[idx]) openPaymentForExistingOrder(pkgs[idx], btn.getAttribute('data-orderid'));
+    });
+  });
+
+  grid.querySelectorAll('.cancel-order-btn').forEach(btn => {
+    btn.addEventListener('click', () => cancelPendingOrder(btn.getAttribute('data-orderid')));
+  });
+}
+
+// Mavjud kutishdagi buyurtma uchun to'lov modalini to'g'ridan ochish
+function openPaymentForExistingOrder(pkg, orderId = null) {
+  currentPkg = pkg;
+  currentPaymentOrderId = orderId;
+  const adminCard = SBApp.state.cards[0];
+  if(!adminCard){
+    alert("To'lov kartasi hali Superadmin tomonidan kiritilmagan.");
+    return;
+  }
+  document.getElementById('paymentCardNum').textContent = adminCard.number;
+  document.getElementById('paymentCardHolder').textContent = adminCard.holder;
+  document.getElementById('payAmount').textContent = SBApp.formatPrice(pkg.price);
+  document.getElementById('payPkg').textContent = currentPlatform + ' - ' + pkg.name;
+  document.getElementById('payBtn').disabled = true;
+
+  selectedPaymentFile = null;
+  hasCheckFile = false;
+  document.getElementById('checkUpload').value = '';
+  document.getElementById('fileOk').style.display = 'none';
+  const prev = document.getElementById('uploadPreview');
+  if(prev){ prev.style.display = 'none'; prev.src = ''; }
+  document.getElementById('uploadArea').classList.remove('has-file');
+
+  openModal('paymentModal');
+}
+
+// Platformaga qarab ruxsat etilgan URL prefixi
+const PLATFORM_URL_PREFIX = {
+  'Telegram':  ['https://t.me/'],
+  'Instagram': ['https://www.instagram.com/', 'https://instagram.com/'],
+  'YouTube':   ['https://www.youtube.com/', 'https://youtu.be/', 'https://youtube.com/'],
+  'TikTok':    ['https://www.tiktok.com/', 'https://vm.tiktok.com/']
+};
+
+function getPlatformUrlHint(platform) {
+  const prefixes = PLATFORM_URL_PREFIX[platform];
+  if (!prefixes) return 'https://...';
+  return prefixes[0] + '...';
+}
+
+function validatePlatformUrl(link, platform) {
+  if (!link) return false;
+  const prefixes = PLATFORM_URL_PREFIX[platform];
+  if (!prefixes) return SBApp.validateAllowedUrl(link);
+  return prefixes.some(p => link.toLowerCase().startsWith(p.toLowerCase()));
+}
+
+function openOrder(pkg){
+  if(typeof pkg === 'string') pkg = JSON.parse(pkg.replace(/'/g,'"'));
+  currentPkg = pkg;
+  currentPlatform = pkg.platform || currentPlatform;
+  document.getElementById('modalPkgName').textContent = `${currentPlatform} - ${pkg.name}`;
+  document.getElementById('modalPkgPrice').textContent = SBApp.formatPrice(pkg.price);
+
+  // Xizmat turi va soni
+  const typeEl = document.getElementById('modalPkgType');
+  const countEl = document.getElementById('modalPkgCount');
+  if(typeEl) typeEl.textContent = pkg.type || '-';
+  if(countEl) countEl.textContent = pkg.count ? SBApp.number(pkg.count).toLocaleString() + ' ta' : '-';
+
+  // Havola input placeholder va label yangilash
+  const linkInput = document.getElementById('orderLink');
+  const linkLabel = document.getElementById('orderLinkLabel');
+  const hint = getPlatformUrlHint(currentPlatform);
+  if(linkInput) { linkInput.value = ''; linkInput.placeholder = hint; }
+  if(linkLabel) linkLabel.textContent = `${currentPlatform} havolasi (masalan: ${hint})`;
+
+  document.getElementById('linkErr').style.display='none';
+  openModal('orderModal');
+}
+
+function openOrderFromData(data){
+  openOrder(JSON.parse(decodeURIComponent(data)));
+}
+
+function proceedToPayment(){
+  currentPaymentOrderId = null;
+  const link = document.getElementById('orderLink').value.trim();
+  const linkErr = document.getElementById('linkErr');
+  if(!validatePlatformUrl(link, currentPlatform)){
+    linkErr.style.display='block';
+    const hint = getPlatformUrlHint(currentPlatform);
+    linkErr.textContent = `Noto'g'ri havola. ${currentPlatform} uchun havola ${hint} bilan boshlanishi kerak`;
+    return;
+  }
+  linkErr.style.display='none';
+  closeModal('orderModal');
+  
+  // Superadmin kartalar ro'yxatini yuklash
+  const adminCard = SBApp.state.cards[0];
+  if(!adminCard){
+    alert("To'lov kartasi hali Superadmin tomonidan kiritilmagan.");
+    return;
+  }
+  document.getElementById('paymentCardNum').textContent = adminCard.number;
+  document.getElementById('paymentCardHolder').textContent = adminCard.holder;
+  document.getElementById('payAmount').textContent = SBApp.formatPrice(currentPkg.price);
+  document.getElementById('payPkg').textContent = currentPlatform+' - '+currentPkg.name;
+  document.getElementById('payBtn').disabled = true;
+  
+  // Reset fields
+  selectedPaymentFile = null;
+  hasCheckFile = false;
+  document.getElementById('checkUpload').value = '';
+  document.getElementById('fileOk').style.display='none';
+  if(document.getElementById('uploadPreview')) {
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('uploadPreview').src = '';
+  }
+  document.getElementById('uploadArea').classList.remove('has-file');
+  openModal('paymentModal');
+}
+
+async function submitPayment(){
+  if(!selectedPaymentFile){ alert('Screenshot yuklash majburiy.'); return; }
+  const btn = document.getElementById('payBtn');
+  if(btn.disabled) return; // Takroriy bosilishdan himoya
+  btn.disabled = true;
+  btn.textContent = 'Yuklanmoqda...';
+  const orderLink = document.getElementById('orderLink').value.trim();
+
+  // Shu paket uchun kutishdagi mavjud buyurtmani topish
+  const allOrders = SBApp.state.orders || [];
+  const existingOrder = allOrders.find(o =>
+    (currentPaymentOrderId && String(o.id) === String(currentPaymentOrderId)) ||
+    ((String(o.packageId || o.paket_id) === String(currentPkg.id) || (o.pkgName === currentPkg.name && o.platform === currentPlatform)) &&
+    (o.status === 'waiting_admin' || o.status === 'pending_payment') &&
+    o.customerUid === currentUser.id)
+  );
+
+  if(existingOrder) {
+    try {
+      const screenshotUrl = await SBApp.uploadScreenshot(selectedPaymentFile);
+      const {error: checkError} = await sb.from('cheklar').insert({
+        buyurtma_id: existingOrder.id,
+        customer_id: currentUser.id,
+        rasm_url: screenshotUrl,
+        holat: 'kutilmoqda'
+      });
+      if(checkError) throw checkError;
+      const {error: orderUpdateError} = await sb.from('buyurtmalar')
+        .update({ payment_status: 'chek_yuborildi' })
+        .eq('id', existingOrder.id);
+      if(orderUpdateError) console.warn("Buyurtma to'lov statusini yangilashda xato:", orderUpdateError);
+      closeModal('paymentModal');
+      openModal('successOrderModal');
+      setTimeout(() => { closeModal('successOrderModal'); showPage('pending'); }, 2200);
+    } catch(error) {
+      console.warn('Screenshot yuborishda xato:', error);
+      alert("Screenshot superadmin paneliga yuborilmadi. Qayta urinib ko'ring.");
+    } finally {
+      btn.textContent = "Screenshot yuborish";
+      btn.disabled = !selectedPaymentFile;
+    }
+    return;
+  }
+
+  // Yangi buyurtma (birinchi marta)
+  const localOrder = {
+    id: `local_${Date.now()}`,
+    customerUid: currentUser.id,
+    customerLogin: currentUser.login || currentUser.email || '',
+    customerName: currentUser.name || 'Buyurtmachi',
+    customerId: currentUser.customer_id || currentUser.customerId,
+    packageId: currentPkg.id,
+    pkgName: currentPkg.name,
+    platform: currentPlatform,
+    type: currentPkg.type,
+    count: SBApp.number(currentPkg.count),
+    neededWorkers: SBApp.number(currentPkg.count),
+    acceptedWorkers: 0,
+    price: SBApp.number(currentPkg.price),
+    reward: SBApp.number(currentPkg.reward),
+    link: orderLink,
+    cardNumber: SBApp.state.cards[0]?.number || '',
+    status: 'waiting_admin',
+    paymentStatus: 'paid',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    localOnly: true
+  };
+
+  try{
+    const orderId = await SBApp.createCustomerOrder({
+      profile: currentUser,
+      pkg: currentPkg,
+      link: orderLink,
+      screenshotFile: selectedPaymentFile,
+      card: SBApp.state.cards[0]
+    });
+    saveLocalCustomerOrder({...localOrder, id:orderId, localOnly:false});
+    closeModal('paymentModal');
+    openModal('successOrderModal');
+    setTimeout(() => { closeModal('successOrderModal'); showPage('pending'); }, 2200);
+  }catch(error){
+    console.warn('Buyurtma yoki screenshot Supabasega saqlanmadi:', error);
+    alert("Buyurtma yoki screenshot superadmin paneliga yuborilmadi. Qayta urinib ko'ring.");
+  }finally{
+    btn.textContent = "Screenshot yuborish";
+    btn.disabled = !selectedPaymentFile;
+  }
+}
+
+function remainingLabel(order){
+  if(order.status !== 'waiting_admin') return '';
+  const ms = Math.max(0, 24*60*60*1000 - (Date.now() - SBApp.toMillis(order.createdAt)));
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return ` - ${h} soat ${m} daqiqa kutilmoqda`;
+}
+
+function getOrderSequenceNumber(order) {
+  // Buyurtmachi UID bo'yicha barcha buyurtmalarni vaqt bo'yicha saralash
+  const allOrders = (SBApp.state.orders || [])
+    .filter(o => o.customerUid === order.customerUid || o.customerId === order.customerId)
+    .slice()
+    .sort((a,b) => SBApp.toMillis(a.createdAt) - SBApp.toMillis(b.createdAt));
+  const idx = allOrders.findIndex(o => String(o.id) === String(order.id));
+  return idx >= 0 ? idx + 1 : 1;
+}
+
+function getOrderLabel(order) {
+  const cid = order.customerId || currentUser.customerId || '-';
+  const seq = getOrderSequenceNumber(order);
+  const service = order.type ? `${order.platform}-${order.type}` : order.platform;
+  return { cid, seq, service };
+}
+
+function renderPendingOrders(){
+  const orders = getOrders().filter(o=>o.status==='waiting_admin' || o.status==='pending_payment' || o.status==='rejected');
+  const list = document.getElementById('pendingList');
+  if(!orders.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><h4>Kutishdagi buyurtma yo'q</h4><p>Yangi buyurtma bering</p></div>`;
+    return;
+  }
+  const statusMap = {
+    waiting_admin:{label:'Admin tekshirmoqda',cls:'status-waiting'},
+    rejected:{label:'Rad etildi',cls:'status-pending'}
+  };
+  list.innerHTML = orders.map(o=>{
+    const {cid, seq, service} = getOrderLabel(o);
+    const payBtn = (o.status === 'waiting_admin' || o.status === 'pending_payment')
+      ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;width:100%">
+           <button onclick="openPaymentForOrder('${o.id}')"
+             style="padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:15px;font-weight:700;cursor:pointer;width:100%">
+             To'lovga o'tish
+           </button>
+           <button onclick="cancelPendingOrder('${o.id}')"
+             style="padding:10px 14px;border-radius:10px;background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.28);font-size:15px;font-weight:700;cursor:pointer;width:100%">
+             Buyurtmani bekor qilish
+           </button>
+         </div>`
+      : '';
+    return `
+    <div class="order-card" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px">
+        <div class="order-left">
+          <div class="order-platform-icon">${SBApp.iconMap[o.platform]||PLATFORM_ICONS[o.platform]||''}</div>
+          <div class="order-info">
+            <div class="order-name">${SBApp.escapeHtml(o.platform)} - ${SBApp.escapeHtml(o.pkgName)}</div>
+            <div class="order-meta">${SBApp.escapeHtml(o.type)} - ${SBApp.number(o.count).toLocaleString()} ta - ${SBApp.formatDate(o.createdAt)}${remainingLabel(o)}</div>
+            <div style="font-size:12px; color:var(--accent); margin-top:4px; font-weight:700;">${SBApp.escapeHtml(cid)}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${SBApp.escapeHtml(service)}</div>
+          </div>
+        </div>
+        <span class="status-badge ${statusMap[o.status]?.cls||'status-waiting'}">${statusMap[o.status]?.label||o.status}</span>
+      </div>
+      ${payBtn}
+    </div>`;
+  }).join('');
+}
+
+// Kutishdagi buyurtma uchun bevosita to'lov modalini ochish (orderId orqali)
+function openPaymentForOrder(orderId) {
+  const order = (SBApp.state.orders || []).find(o => String(o.id) === String(orderId));
+  if(!order) return;
+  const pkg = (SBApp.state.packages || []).find(p =>
+    String(p.id) === String(order.packageId) || (p.name === order.pkgName && p.platform === order.platform)
+  ) || { id: order.packageId, name: order.pkgName, price: order.price, type: order.type, count: order.count };
+  currentPkg = pkg;
+  currentPlatform = order.platform;
+  currentPaymentOrderId = order.id;
+  const adminCard = SBApp.state.cards[0];
+  if(!adminCard){ alert("To'lov kartasi hali kiritilmagan."); return; }
+  document.getElementById('paymentCardNum').textContent = adminCard.number;
+  document.getElementById('paymentCardHolder').textContent = adminCard.holder;
+  document.getElementById('payAmount').textContent = SBApp.formatPrice(order.price);
+  document.getElementById('payPkg').textContent = order.platform + ' - ' + order.pkgName;
+  document.getElementById('payBtn').disabled = true;
+  selectedPaymentFile = null;
+  hasCheckFile = false;
+  document.getElementById('checkUpload').value = '';
+  document.getElementById('fileOk').style.display = 'none';
+  const prev = document.getElementById('uploadPreview');
+  if(prev){ prev.style.display='none'; prev.src=''; }
+  document.getElementById('uploadArea').classList.remove('has-file');
+  openModal('paymentModal');
+}
+
+async function cancelPendingOrder(orderId) {
+  const order = (SBApp.state.orders || []).find(o => String(o.id) === String(orderId));
+  if(!order) return;
+  if(!(order.status === 'waiting_admin' || order.status === 'pending_payment' || order.status === 'rejected')){
+    alert("Bu buyurtmani hozir bekor qilib bo'lmaydi.");
+    return;
+  }
+  if(!confirm("Buyurtmani bekor qilasizmi?")) return;
+
+  try{
+    if(!order.localOnly && !String(order.id).startsWith('local_')){
+      const {error} = await sb.from('buyurtmalar').delete().eq('id', order.id);
+      if(error) throw error;
+    }
+    const localOrders = getLocalCustomerOrders().filter(item => String(item.id) !== String(order.id));
+    localStorage.setItem(getCustomerOrderKey(), JSON.stringify(localOrders));
+    SBApp.state.orders = (SBApp.state.orders || []).filter(item => String(item.id) !== String(order.id));
+    updateStats();
+    if(currentPlatform) renderPackages(currentPlatform);
+  }catch(error){
+    console.warn("Buyurtmani bekor qilishda xato:", error);
+    alert("Buyurtmani bekor qilib bo'lmadi. Qayta urinib ko'ring.");
+  }
+}
+
+function renderProgressOrders(){
+  const orders = getOrders().filter(o=>o.status==='active' || o.status==='in_progress' || o.status==='pending_review');
+  const list = document.getElementById('progressList');
+  if(!orders.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><h4>Jarayondagi buyurtma yo'q</h4></div>`;
+    return;
+  }
+  const statusMap = {
+    active:{label:'Ish bajaruvchilarga yuborildi',cls:'status-waiting'},
+    in_progress:{label:'Workerlar bajaryapti',cls:'status-waiting'},
+    pending_review:{label:'Tekshiruvda',cls:'status-waiting'}
+  };
+  list.innerHTML = orders.map(o=>{
+    const total = SBApp.number(o.count) || 0;
+    const acceptedRaw = SBApp.number(o.acceptedWorkers) || 0;
+    const screenshots = SBApp.number(o.approvedScreenshots) || 0;
+    const accepted = screenshots > 0 ? Math.min(screenshots, total) : Math.min(acceptedRaw, total);
+    const remaining = Math.max(0, total - accepted);
+    const percent = total > 0 ? Math.min(100, Math.round((accepted / total) * 100)) : 0;
+
+
+
+
+    const {cid, seq, service} = getOrderLabel(o);
+    
+    return `
+    <div class="order-card" style="flex-direction:column;align-items:flex-start;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px">
+        <div class="order-left">
+          <div class="order-platform-icon">${SBApp.iconMap[o.platform]||PLATFORM_ICONS[o.platform]||''}</div>
+          <div class="order-info">
+            <div class="order-name">${SBApp.escapeHtml(o.platform)} - ${SBApp.escapeHtml(o.pkgName)}</div>
+            <div class="order-meta">${SBApp.escapeHtml(o.type)} - ${SBApp.formatDate(o.createdAt)}</div>
+            <div style="font-size:12px; color:var(--accent); margin-top:4px; font-weight:700;">${SBApp.escapeHtml(cid)}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${SBApp.escapeHtml(service)}</div>
+          </div>
+        </div>
+        <span class="status-badge ${statusMap[o.status]?.cls||'status-waiting'}">${statusMap[o.status]?.label||o.status}</span>
+      </div>
+      <div style="width:100%">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px">
+          <span style="color:var(--muted)">Jami: <b style="color:var(--text)">${total.toLocaleString()} ta</b></span>
+          <span style="color:var(--orange);font-weight:700;font-size:14px">${total.toLocaleString()} dan <b style="color:var(--red);font-size:16px">${remaining.toLocaleString()}</b> ta qoldi</span>
+          <span style="color:var(--green)">${accepted.toLocaleString()} bajarildi</span>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;height:8px;width:100%;overflow:hidden">
+          <div style="height:100%;width:${percent}%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:8px;transition:width 0.5s"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function autoCompletOrder(order) {
+  // FAQAT acceptedWorkers buyurtma soniga yetgandagina "done" ga o'tkazish
+  const accepted = SBApp.number(order.acceptedWorkers) || 0;
+  const needed   = SBApp.number(order.neededWorkers || order.count) || 0;
+  if(needed > 0 && accepted < needed) return; // Hali to'liq bajarilmagan
+
+  const localOrders = getLocalCustomerOrders();
+  const idx = localOrders.findIndex(o => String(o.id) === String(order.id));
+  if(idx > -1) {
+    localOrders[idx].status = 'done';
+    localOrders[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(getCustomerOrderKey(), JSON.stringify(localOrders));
+    SBApp.state.orders = mergeOrders(
+      (SBApp.state.orders || []).map(o => String(o.id) === String(order.id) ? {...o, status:'done', updatedAt:new Date().toISOString()} : o),
+      []
+    );
+    updateStats();
+  }
+  // Supabaseda ham yangilash
+  try {
+    sb.from('buyurtmalar').update({ holat: 'completed', updated_at: new Date().toISOString() }).eq('id', String(order.id)).then(()=>{});
+  } catch(e) {}
+}
+
+function renderWorkerProofs(){
+  const list = document.getElementById('proofsList');
+  if(!list) return;
+  const proofs = (SBApp.state.workerProofs || [])
+    .slice()
+    .sort((a,b)=>SBApp.toMillis(b.createdAt)-SBApp.toMillis(a.createdAt));
+
+  if(!proofs.length){
+    list.innerHTML = `<div class="empty"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><h4>Hali screenshot yuborilmagan</h4><p>Worker vazifani bajarganda screenshot shu yerda chiqadi</p></div>`;
+    return;
+  }
+
+  const statuses = {
+    pending_review:{label:"Sizning tasdig'ingiz kutilmoqda",cls:'status-waiting'},
+    approved:{label:'Tasdiqlandi',cls:'status-done'},
+    rejected:{label:'Rad etildi',cls:'status-pending'},
+    accepted:{label:'Vazifa bajarilmoqda',cls:'status-waiting'}
+  };
+
+  list.innerHTML = proofs.map(proof => `
+    <div class="order-card" style="flex-direction:column;align-items:stretch;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div class="order-left">
+          <div class="order-platform-icon">${SBApp.iconMap[proof.platform]||PLATFORM_ICONS[proof.platform]||''}</div>
+          <div class="order-info">
+            <div class="order-name">${SBApp.escapeHtml(proof.platform)} - ${SBApp.escapeHtml(proof.pkgName)}</div>
+            <div class="order-meta">${SBApp.escapeHtml(proof.workerName)}${proof.workerPublicId ? ` · ${SBApp.escapeHtml(proof.workerPublicId)}` : ''}</div>
+          </div>
+        </div>
+        <span class="status-badge ${statuses[proof.status]?.cls||'status-waiting'}">${statuses[proof.status]?.label||proof.status}</span>
+      </div>
+      <a href="${SBApp.escapeHtml(proof.screenshotUrl)}" target="_blank" rel="noopener" style="display:block;background:var(--surface2);border-radius:12px;padding:10px;text-align:center">
+        <img src="${SBApp.escapeHtml(proof.screenshotUrl)}" alt="Bajarilgan ish screenshoti" style="display:block;max-width:100%;max-height:360px;margin:auto;border-radius:8px">
+      </a>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="color:var(--muted);font-size:15px">Worker to'lovi: <strong style="color:var(--green)">${SBApp.formatPrice(proof.reward)}</strong></div>
+        ${proof.status==='pending_review'
+          ? `<button class="btn btn-primary" id="approveProof_${proof.id}" onclick="approveWorkerProof('${proof.id}')">Tasdiqlash</button>`
+          : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function approveWorkerProof(proofId){
+  const proof = (SBApp.state.workerProofs || []).find(item=>String(item.id)===String(proofId));
+  if(!proof || proof.status !== 'pending_review') return;
+  const order = (SBApp.state.orders || []).find(item=>String(item.id)===String(proof.orderId));
+  if(!order){
+    alert("Bu screenshot sizning buyurtmangizga tegishli emas.");
+    return;
+  }
+
+  const btn = document.getElementById('approveProof_' + proofId);
+  if(btn){
+    btn.disabled = true;
+    btn.textContent = 'Tasdiqlanmoqda...';
+  }
+
+  let claimed = false;
+  try{
+    const {data: ownedOrder, error: ownershipError} = await sb.from('buyurtmalar')
+      .select('id')
+      .eq('id', order.id)
+      .eq('customer_id', currentUser.id)
+      .single();
+    if(ownershipError || !ownedOrder){
+      throw new Error("Bu screenshot sizning buyurtmangizga tegishli emas.");
+    }
+
+    const {data: updatedRows, error: taskError} = await sb.from('bajarilgan_ishlar')
+      .update({holat:'tasdiqlandi'})
+      .eq('id', proof.id)
+      .eq('buyurtma_id', order.id)
+      .eq('holat', 'kutilmoqda')
+      .select('id,worker_id,buyurtma_id');
+    if(taskError) throw taskError;
+    if(!updatedRows?.length) throw new Error("Bu screenshot allaqachon ko'rib chiqilgan.");
+    claimed = true;
+
+    const payment = SBApp.number(proof.reward);
+    const {data: worker, error: workerError} = await sb.from('users')
+      .select('balans')
+      .eq('id', proof.workerId)
+      .single();
+    if(workerError) throw workerError;
+
+    const {error: balanceError} = await sb.from('users')
+      .update({balans: SBApp.number(worker?.balans) + payment})
+      .eq('id', proof.workerId);
+    if(balanceError) throw balanceError;
+
+    const {count: approvedCount} = await sb.from('bajarilgan_ishlar')
+      .select('id', {count:'exact', head:true})
+      .eq('buyurtma_id', order.id)
+      .eq('holat', 'tasdiqlandi');
+    const needed = SBApp.number(order.neededWorkers || order.count);
+    if(needed > 0 && SBApp.number(approvedCount) >= needed){
+      await sb.from('buyurtmalar')
+        .update({holat:'completed', updated_at:new Date().toISOString()})
+        .eq('id', order.id);
+      order.status = 'done';
+    }
+
+    await sb.from('notifications').insert({
+      rol:'worker',
+      user_uid: proof.workerId,
+      type:'work_approved',
+      title:'Ishingiz tasdiqlandi',
+      message:`Buyurtmachi screenshotni tasdiqladi. Balansingizga ${payment.toLocaleString()} so'm qo'shildi.`,
+      read:false
+    });
+
+    proof.status = 'approved';
+    order.approvedScreenshots = SBApp.number(order.approvedScreenshots) + 1;
+    updateStats();
+  }catch(error){
+    if(claimed){
+      await sb.from('bajarilgan_ishlar')
+        .update({holat:'kutilmoqda'})
+        .eq('id', proof.id)
+        .eq('holat', 'tasdiqlandi');
+    }
+    alert(error.message || "Screenshotni tasdiqlab bo'lmadi.");
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = 'Tasdiqlash';
+    }
+  }
+}
+
+function renderDoneOrders(){
+  const orders = getOrders().filter(o=>o.status==='done');
+  const list = document.getElementById('doneList');
+  if(!orders.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><h4>Bajarilgan buyurtma yo'q</h4><p>Buyurtmalar bajarilgach shu yerda ko'rinadi</p></div>`;
+    return;
+  }
+  list.innerHTML = orders.map(o=>{
+    const {cid, seq, service} = getOrderLabel(o);
+    const reviewKey = `sb_review_${o.id}`;
+    const savedReview = localStorage.getItem(reviewKey) || '';
+    const reviewSent = !!savedReview;
+    return `
+    <div class="order-card" style="flex-direction:column;align-items:flex-start;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px">
+        <div class="order-left">
+          <div class="order-platform-icon">${SBApp.iconMap[o.platform]||PLATFORM_ICONS[o.platform]||''}</div>
+          <div class="order-info">
+            <div class="order-name">${SBApp.escapeHtml(o.platform)} - ${SBApp.escapeHtml(o.pkgName)}</div>
+            <div class="order-meta">${SBApp.escapeHtml(o.type)} - ${SBApp.number(o.count).toLocaleString()} ta - ${SBApp.formatDate(o.updatedAt)}</div>
+            <div style="font-size:12px; color:var(--accent); margin-top:4px; font-weight:700;">${SBApp.escapeHtml(cid)}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${SBApp.escapeHtml(service)}</div>
+          </div>
+        </div>
+        <span class="status-badge status-done">Bajarildi ✓</span>
+      </div>
+      <div style="width:100%;border-top:1px solid var(--border);padding-top:12px">
+        ${reviewSent ? `
+          <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--green)">
+            ✓ Fikringiz yuborildi: <span style="color:var(--text);font-style:italic">"${SBApp.escapeHtml(savedReview)}"</span>
+          </div>
+        ` : `
+          <div style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Fikr qoldirish</div>
+          <textarea id="review_${o.id}" rows="3" class="form-input" placeholder="Xizmat haqida fikringizni yozing..." style="resize:vertical;min-height:72px"></textarea>
+          <button class="btn btn-primary" style="margin-top:10px;padding:10px 20px;font-size:14px" onclick="submitReview('${o.id}')">Fikr yuborish</button>
+        `}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitReview(orderId) {
+  const textarea = document.getElementById('review_' + orderId);
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) { alert("Iltimos fikringizni yozing"); return; }
+  
+  const btn = textarea.nextElementSibling;
+  if (btn) { btn.disabled = true; btn.textContent = 'Yuborilmoqda...'; }
+
+  // LocalStorage ga saqlash
+  localStorage.setItem('sb_review_' + orderId, text);
+
+  // Supabasega yuborish
+  try {
+    await sb.from('reviews').insert({
+      buyurtma_id: orderId,
+      customer_id: currentUser.id,
+      customer_name: currentUser.name || 'Buyurtmachi',
+      review: text,
+      created_at: new Date().toISOString()
+    });
+  } catch(e) {
+    console.warn('Supabasega fikr yuborishda xato:', e);
+  }
+
+  renderDoneOrders();
+}
+
+function hideProfilePassword(){
+  const el = document.getElementById('pfPassword');
+  if(el) el.textContent = '********';
+}
+
+function revealProfilePassword(){
+  const el = document.getElementById('pfPassword');
+  if(!el) return;
+  el.textContent = currentUser.password || '-';
+  clearTimeout(passwordRevealTimer);
+  passwordRevealTimer = setTimeout(hideProfilePassword, 10000);
+}
+
+function changePassword(){
+  const p1 = document.getElementById('newPass').value;
+  const p2 = document.getElementById('newPass2').value;
+  const err = document.getElementById('passChangeErr');
+  if(p1 !== p2){ err.style.display='block'; return; }
+  err.style.display='none';
+  if(p1.length < 8){ alert("Parol kamida 8 belgi bo'lishi kerak"); return; }
+  
+  const users = JSON.parse(localStorage.getItem('sb_users')||'[]');
+  const idx = users.findIndex(u=>u.login===currentUser.login);
+  if(idx>-1){ users[idx].password = p1; localStorage.setItem('sb_users',JSON.stringify(users)); }
+  currentUser.password = p1;
+  localStorage.setItem('sb_current_user', JSON.stringify(currentUser));
+  document.getElementById('newPass').value='';
+  document.getElementById('newPass2').value='';
+  alert('Parol muvaffaqiyatli o\'zgartirildi!');
+}
+
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+async function sendEmailVerification(){
+  const newEmail = document.getElementById('newEmail').value.trim();
+  const msgEl = document.getElementById('emailMsg');
+  if(!newEmail || !newEmail.includes('@')){
+    msgEl.textContent = "To'g'ri Gmail manzilini kiriting";
+    msgEl.style.color = 'var(--error, #f87171)';
+    return;
+  }
+  try{
+    const { error } = await sb.auth.updateUser({ email: newEmail });
+    if(error) throw error;
+    msgEl.textContent = "Tasdiqlash havolasi yangi Gmailingizga yuborildi. Tasdiqlagandan so'ng email yangilanadi.";
+    msgEl.style.color = 'var(--success, #34d399)';
+  }catch(error){
+    msgEl.textContent = "Xatolik: " + (error.message || "Email yangilab bo'lmadi");
+    msgEl.style.color = 'var(--error, #f87171)';
+  }
+}
+
+function logout(){
+  localStorage.removeItem('sb_current_user');
+  sb.auth.signOut().finally(()=>{ window.location.href='index.html'; });
+}
+
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('show'); });
+});
+</script>
+</body>
+</html>
