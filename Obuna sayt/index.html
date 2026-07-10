@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Ijtimoiy tarmoq xizmatlari</title>
+<style>body,*{font-family:Calibri,"Calibri",sans-serif!important}</style>
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#111118; --surface2:#16161f;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --accent:#4f8ef7; --accent2:#6c63ff; --green:#34d399; --purple:#a855f7;
+  --text:#f0f0f5; --muted:#6b6b80;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:Calibri,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* BG */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(79,142,247,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,0.035) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.glow{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0}
+.glow1{width:600px;height:600px;background:rgba(79,142,247,0.1);top:-150px;left:-150px;animation:floatG 10s ease-in-out infinite}
+.glow2{width:500px;height:500px;background:rgba(168,85,247,0.08);bottom:-100px;right:-100px;animation:floatG 10s ease-in-out infinite reverse}
+@keyframes floatG{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,18px)}}
+
+/* NAVBAR */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:Calibri,sans-serif;font-size:18px;font-weight:800;color:var(--accent)}
+.nav-logo span{color:var(--muted)}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-link{
+  color:var(--muted);text-decoration:none;font-size:15px;font-weight:600;
+  padding:9px 16px;border-radius:10px;transition:all 0.2s;
+  border:1px solid transparent;
+}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05);border-color:var(--border)}
+.nav-link.active{color:var(--text);background:rgba(255,255,255,0.06);border-color:var(--border)}
+.nav-register{
+  padding:10px 20px;border-radius:10px;font-size:15px;font-weight:700;
+  cursor:pointer;text-decoration:none;transition:all 0.2s;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;box-shadow:0 4px 16px rgba(79,142,247,0.3);
+  display:inline-flex;align-items:center;gap:7px;
+}
+.nav-register:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(79,142,247,0.45)}
+.nav-btns{display:flex;gap:10px}
+.nav-btn{padding:10px 24px;border-radius:10px;font-family:Calibri,sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s}
+.nav-btn-outline{background:none;border:1px solid var(--border2);color:var(--text)}
+.nav-btn-outline:hover{background:rgba(255,255,255,0.05)}
+.nav-btn-fill{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;box-shadow:0 4px 16px rgba(79,142,247,0.3)}
+.nav-btn-fill:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(79,142,247,0.45)}
+.hamburger{display:none;background:none;border:1px solid var(--border);color:var(--text);padding:8px;border-radius:8px;cursor:pointer}
+
+/* HERO AUTH BUTTONS */
+.hero-auth-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:0}
+.hero-auth-btn{padding:12px 28px;border-radius:12px;font-family:Calibri,sans-serif;font-size:16px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px}
+.hero-auth-outline{background:none;border:1.5px solid var(--border2);color:var(--text)}
+.hero-auth-outline:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.25)}
+.hero-auth-fill{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;box-shadow:0 4px 18px rgba(79,142,247,0.3)}
+.hero-auth-fill:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(79,142,247,0.5)}
+
+/* HERO */
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;padding:100px 60px 60px;gap:60px}
+.hero-left{flex:1;max-width:520px}
+.hero-right{flex:1;display:flex;gap:20px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.hero h1{font-family:Calibri,sans-serif;font-size:clamp(32px,4vw,58px);font-weight:800;line-height:1.15;margin-bottom:32px;text-align:left}
+.hero h1 span{display:block}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:var(--muted);max-width:480px;margin:0 0 40px;line-height:1.8;text-align:left}
+/* Social nav buttons */
+.nav-social{display:flex;gap:8px;align-items:center}
+.nav-social-btn{padding:10px 18px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;border:none;display:flex;align-items:center;gap:7px}
+.nav-tg{background:rgba(41,182,246,0.12);color:#29B6F6;border:1px solid rgba(41,182,246,0.25)}
+.nav-tg:hover{background:rgba(41,182,246,0.25)}
+.nav-ig{background:rgba(233,30,140,0.1);color:#E91E8C;border:1px solid rgba(233,30,140,0.2)}
+.nav-ig:hover{background:rgba(233,30,140,0.22)}
+.nav-yt{background:rgba(255,0,0,0.1);color:#FF3D3D;border:1px solid rgba(255,0,0,0.2)}
+.nav-yt:hover{background:rgba(255,0,0,0.2)}
+.nav-tt{background:rgba(105,201,208,0.1);color:#69C9D0;border:1px solid rgba(105,201,208,0.2)}
+.nav-tt:hover{background:rgba(105,201,208,0.22)}
+
+/* ROLE CARDS */
+.role-cards{display:flex;gap:20px;flex-direction:column;margin-bottom:40px}
+.role-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:22px;padding:36px 32px;width:100%;max-width:340px;
+  text-align:left;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;
+}
+.role-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s;border-radius:22px}
+.role-card.customer::before{background:linear-gradient(135deg,rgba(79,142,247,0.06),rgba(108,99,255,0.04))}
+.role-card.worker::before{background:linear-gradient(135deg,rgba(52,211,153,0.06),rgba(5,150,105,0.04))}
+.role-card:hover{transform:translateY(-6px)}
+.role-card.customer:hover{border-color:rgba(79,142,247,0.35);box-shadow:0 20px 50px rgba(79,142,247,0.15)}
+.role-card.worker:hover{border-color:rgba(52,211,153,0.35);box-shadow:0 20px 50px rgba(52,211,153,0.12)}
+.role-card:hover::before{opacity:1}
+.role-icon{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:20px}
+.role-icon.c{background:rgba(79,142,247,0.12);border:1px solid rgba(79,142,247,0.2)}
+.role-icon.w{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2)}
+.role-title{font-family:Calibri,sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
+.role-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.role-features{display:flex;flex-direction:column;gap:7px;margin-bottom:24px}
+.role-feature{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.role-feature .check{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.check-blue{background:rgba(79,142,247,0.15);color:var(--accent)}
+.check-green{background:rgba(52,211,153,0.15);color:var(--green)}
+.role-btn{
+  width:100%;padding:16px;border-radius:12px;border:none;
+  font-family:Calibri,sans-serif;font-size:16px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.role-btn-blue{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 18px rgba(79,142,247,0.3)}
+.role-btn-blue:hover{box-shadow:0 8px 28px rgba(79,142,247,0.5);transform:translateY(-1px)}
+.role-btn-green{background:linear-gradient(135deg,var(--green),#059669);color:#fff;box-shadow:0 4px 18px rgba(52,211,153,0.25)}
+.role-btn-green:hover{box-shadow:0 8px 28px rgba(52,211,153,0.4);transform:translateY(-1px)}
+
+/* STATS */
+.stats{display:flex;gap:32px;justify-content:flex-start;flex-wrap:wrap;padding:32px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:8px}
+.stat-item{text-align:center}
+.stat-num{font-family:Calibri,sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* SECTION */
+.section{position:relative;z-index:1;padding:80px 40px;max-width:1200px;margin:0 auto}
+.section-badge{display:inline-block;padding:5px 14px;border-radius:20px;background:rgba(79,142,247,0.1);border:1px solid rgba(79,142,247,0.2);color:var(--accent);font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+.section-title{font-family:Calibri,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;margin-bottom:12px}
+.section-sub{color:var(--muted);font-size:15px;max-width:500px;line-height:1.7;margin-bottom:48px}
+
+/* HOW IT WORKS */
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:36px 32px;transition:all 0.25s}
+.step-card:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.25)}
+.step-num{font-family:Calibri,sans-serif;font-size:42px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.step-title{font-family:Calibri,sans-serif;font-size:20px;font-weight:700;margin-bottom:12px}
+.step-desc{font-size:16px;color:var(--muted);line-height:1.7}
+
+/* PLATFORMS */
+.platforms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.platform-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 24px;text-align:center;transition:all 0.25s}
+.platform-card:hover{transform:translateY(-3px)}
+.platform-card.tg:hover{border-color:rgba(41,182,246,0.4);box-shadow:0 12px 30px rgba(41,182,246,0.1)}
+.platform-card.ig:hover{border-color:rgba(233,30,140,0.4);box-shadow:0 12px 30px rgba(233,30,140,0.1)}
+.platform-card.yt:hover{border-color:rgba(255,0,0,0.4);box-shadow:0 12px 30px rgba(255,0,0,0.08)}
+.platform-card.tt:hover{border-color:rgba(105,201,208,0.4);box-shadow:0 12px 30px rgba(105,201,208,0.08)}
+.p-icon{font-size:52px;margin-bottom:16px;display:flex;align-items:center;justify-content:center}
+.p-name{font-family:Calibri,sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.p-desc{font-size:15px;color:var(--muted);line-height:1.6}
+
+/* SECURITY */
+.security-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.sec-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;transition:all 0.25s}
+.sec-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.sec-icon{font-size:28px;margin-bottom:14px}
+.sec-title{font-family:Calibri,sans-serif;font-size:15px;font-weight:700;margin-bottom:8px}
+.sec-desc{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.testi-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;transition:all 0.25s}
+.testi-card:hover{border-color:var(--border2)}
+.testi-stars{color:#fbbf24;font-size:14px;margin-bottom:12px}
+.testi-text{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:10px}
+.testi-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:Calibri,sans-serif;font-weight:800;font-size:14px;color:#fff}
+.testi-name{font-size:14px;font-weight:600}
+.testi-role{font-size:14px;color:var(--muted)}
+
+/* CTA */
+.cta{position:relative;z-index:1;margin:0 40px 80px;background:linear-gradient(135deg,rgba(79,142,247,0.08),rgba(168,85,247,0.06));border:1px solid rgba(79,142,247,0.15);border-radius:28px;padding:60px 40px;text-align:center}
+.cta h2{font-family:Calibri,sans-serif;font-size:clamp(26px,4vw,44px);font-weight:800;margin-bottom:14px}
+.cta p{color:var(--muted);font-size:16px;margin-bottom:36px}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cta-btn{padding:16px 36px;border-radius:14px;font-family:Calibri,sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px}
+.cta-btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;box-shadow:0 6px 28px rgba(79,142,247,0.35)}
+.cta-btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(79,142,247,0.5)}
+.cta-btn-secondary{background:none;border:1.5px solid var(--border2);color:var(--text)}
+.cta-btn-secondary:hover{background:rgba(255,255,255,0.04)}
+
+/* FOOTER */
+.footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:Calibri,sans-serif;font-size:16px;font-weight:800;color:var(--accent)}
+.footer-logo span{color:var(--muted)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-link{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s}
+.footer-link:hover{color:var(--text)}
+.footer-copy{color:var(--muted);font-size:14px}
+
+/* MOBILE */
+@media(max-width:768px){
+  .navbar{padding:14px 20px}
+  .nav-links{display:none}
+  .hamburger{display:flex;align-items:center}
+  .hero{padding:80px 20px 40px;flex-direction:column;gap:32px}
+  .hero-left{max-width:100%}
+  .hero h1{font-size:32px;text-align:center}
+  .hero-sub{text-align:center;margin:0 auto 32px}
+  .hero-right{width:100%}
+  .stats{margin:0;justify-content:center}
+  .nav-social{display:none}
+  .section{padding:60px 20px}
+  .cta{margin:0 20px 60px;padding:40px 24px}
+  .footer{padding:30px 20px;flex-direction:column;text-align:center}
+  .role-cards{flex-direction:column}
+  .role-card{max-width:100%}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="glow glow1"></div>
+<div class="glow glow2"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-links">
+    <a href="#how" class="nav-link">Qanday ishlaydi</a>
+    <a href="#platforms" class="nav-link">Platformalar</a>
+    <a href="#security" class="nav-link">Xavfsizlik</a>
+    <a href="#reviews" class="nav-link">Sharhlar</a>
+  </div>
+  <div class="nav-social">
+    <a id="social-tg" href="https://t.me/Aliyevacounti" target="_blank" rel="noopener" class="nav-social-btn nav-tg">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      Telegram
+    </a>
+    <a id="social-ig" href="https://instagram.com/_okluk1_" target="_blank" rel="noopener" class="nav-social-btn nav-ig">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      Instagram
+    </a>
+    <a id="social-yt" href="YOUTUBE_HAVOLA_BU_YERGA" target="_blank" rel="noopener" class="nav-social-btn nav-yt">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+      YouTube
+    </a>
+    <a id="social-tt" href="https://tiktok.com/okluk_" target="_blank" rel="noopener" class="nav-social-btn nav-tt">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.79 1.53V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
+      TikTok
+    </a>
+  </div>
+  <div class="nav-btns" style="display:none"></div>
+  <button class="hamburger" onclick="toggleMenu()">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+
+  <!-- CHAP: Matn -->
+  <div class="hero-left">
+    <div class="hero-auth-btns">
+      <a href="login.html" class="hero-auth-btn hero-auth-outline">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Kirish
+      </a>
+      <a href="#cta" class="hero-auth-btn hero-auth-fill">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Ro'yxatdan o'tish
+      </a>
+    </div>
+    <h1 style="margin-top:32px">
+      <span>Ijtimoiy tarmoqlar uchun</span>
+      <span>xizmat buyurtma qiling</span>
+      <span>yoki vazifa bajarib</span>
+      <span><em>pul ishlang</em></span>
+    </h1>
+
+  </div>
+
+  <!-- O'NG: Kartochkalar -->
+  <div class="hero-right">
+    <!-- BUYURTMACHI -->
+    <div class="role-card customer">
+      <div class="role-icon c">👤</div>
+      <div class="role-title">Buyurtmachi</div>
+      <div class="role-desc">Ijtimoiy tarmoqlaringizni o'stirmoqchimisiz? Paket tanlang, to'lov qiling va natijani kuzating.</div>
+      <div class="role-features">
+        <div class="role-feature"><span class="check check-blue">✓</span> Tez va ishonchli xizmat</div>
+        <div class="role-feature"><span class="check check-blue">✓</span> Barcha platformalar qo'llab-quvvatlanadi</div>
+        <div class="role-feature"><span class="check check-blue">✓</span> 24/7 buyurtma berish imkoniyati</div>
+        <div class="role-feature"><span class="check check-blue">✓</span> To'lov xavfsizligi kafolatlanadi</div>
+      </div>
+      <button class="role-btn role-btn-blue" onclick="window.location.href='register.html?role=customer'">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Buyurtmachi sifatida ro'yxatdan o'ting
+      </button>
+    </div>
+
+    <!-- ISH BAJARUVCHI -->
+    <div class="role-card worker">
+      <div class="role-icon w">⚡</div>
+      <div class="role-title">Ish Bajaruvchi</div>
+      <div class="role-desc">Ijtimoiy tarmoqlarda faolmisiz? Buyurtmalar bajaring, ball to'plang va daromad qiling.</div>
+      <div class="role-features">
+        <div class="role-feature"><span class="check check-green">✓</span> Har bir bajarilgan ish uchun ball</div>
+        <div class="role-feature"><span class="check check-green">✓</span> Tezkor pul yechish imkoniyati</div>
+        <div class="role-feature"><span class="check check-green">✓</span> Referal tizimi orqali bonus</div>
+        <div class="role-feature"><span class="check check-green">✓</span> Istalgan vaqt ishlash mumkin</div>
+      </div>
+      <button class="role-btn role-btn-green" onclick="window.location.href='worker-register.html'">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Ish bajaruvchi sifatida ro'yxatdan o'ting
+      </button>
+    </div>
+  </div>
+
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-badge">Jarayon</div>
+  <div class="section-title">Qanday ishlaydi?</div>
+  <p class="section-sub">Faqat bir necha qadam — va ijtimoiy tarmoqlaringiz o'sib boshlaydi</p>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-title">Ro'yxatdan o'ting</div>
+      <div class="step-desc">Buyurtmachi yoki Ish bajaruvchi sifatida tezda ro'yxatdan o'ting. Faqat bir daqiqa vaqt ketadi.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-title">Paket tanlang</div>
+      <div class="step-desc">Platformangizni va kerakli xizmat turini tanlang. Bronza, Kumush yoki Platina paketlardan birini oling.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-title">To'lov qiling</div>
+      <div class="step-desc">Karta orqali xavfsiz to'lov qiling. To'lov chekingizni yuklang va adminni tasdiqlashini kuting.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">04</div>
+      <div class="step-title">Natijani kuzating</div>
+      <div class="step-desc">Barcha xizmatlar Ish bajaruvchilar tomonidan bajariladi.Buyurtmangiz bajarilgach statistikani real vaqtda kuzating.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section class="section" id="platforms" style="background:var(--surface2);border-radius:28px;margin:0 40px 0">
+  <div class="section-badge">Platformalar</div>
+  <div class="section-title">Qaysi platformalarda ishlaymiz?</div>
+  <p class="section-sub">Eng mashhur ijtimoiy tarmoqlarda xizmat ko'rsatamiz</p>
+  <div class="platforms-grid">
+    <div class="platform-card tg">
+      <div class="p-icon">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="#29B6F6" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/>
+        </svg>
+      </div>
+      <div class="p-name">Telegram</div>
+      <div class="p-desc">Obunachi, ko'rish, layk va reaksiyalar</div>
+    </div>
+    <div class="platform-card ig">
+      <div class="p-icon">
+        <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ig_grad" cx="30%" cy="107%" r="150%">
+              <stop offset="0%" stop-color="#ffd600"/>
+              <stop offset="50%" stop-color="#ff6a00"/>
+              <stop offset="75%" stop-color="#ee0979"/>
+              <stop offset="100%" stop-color="#7b2ff7"/>
+            </radialGradient>
+          </defs>
+          <rect width="48" height="48" rx="12" fill="url(#ig_grad)"/>
+          <rect x="13" y="13" width="22" height="22" rx="6" stroke="white" stroke-width="2.5" fill="none"/>
+          <circle cx="24" cy="24" r="5.5" stroke="white" stroke-width="2.5" fill="none"/>
+          <circle cx="32.5" cy="15.5" r="1.5" fill="white"/>
+        </svg>
+      </div>
+      <div class="p-name">Instagram</div>
+      <div class="p-desc">Obunachi, layk, ko'rish va izohlar. Ulashishlar.</div>
+    </div>
+    <div class="platform-card yt">
+      <div class="p-icon">
+        <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#FF0000"/>
+          <path d="M36.5 17.5C36.5 17.5 36.2 15.6 35.3 14.7C34.2 13.5 33 13.5 32.4 13.4C28.8 13.1 24 13.1 24 13.1C24 13.1 19.2 13.1 15.6 13.4C15 13.5 13.8 13.5 12.7 14.7C11.8 15.6 11.5 17.5 11.5 17.5C11.5 17.5 11.2 19.7 11.2 21.9V24C11.2 26.2 11.5 28.4 11.5 28.4C11.5 28.4 11.8 30.3 12.7 31.2C13.8 32.4 15.2 32.4 15.9 32.5C18.1 32.7 24 32.8 24 32.8C24 32.8 28.8 32.8 32.4 32.5C33 32.4 34.2 32.4 35.3 31.2C36.2 30.3 36.5 28.4 36.5 28.4C36.5 28.4 36.8 26.2 36.8 24V21.9C36.8 19.7 36.5 17.5 36.5 17.5Z" fill="white"/>
+          <path d="M21 28V20L29 24L21 28Z" fill="#FF0000"/>
+        </svg>
+      </div>
+      <div class="p-name">YouTube</div>
+      <div class="p-desc">Ko'rish, obunachi va layklar. Ulashishlar.</div>
+    </div>
+    <div class="platform-card tt">
+      <div class="p-icon">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="#69C9D0" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.79 1.53V6.78a4.85 4.85 0 01-1.02-.09z"/>
+        </svg>
+      </div>
+      <div class="p-name">TikTok</div>
+      <div class="p-desc">Ko'rish, layk va obunachi</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="section" id="security">
+  <div class="section-badge">Xavfsizlik</div>
+  <div class="section-title">Sizning xavfsizligingiz — bizning ustuvorligimiz</div>
+  <p class="section-sub">Har bir operatsiya xavfsiz va shifrlangan kanallar orqali amalga oshiriladi</p>
+  <div class="security-grid">
+    <div class="sec-card">
+      <div class="sec-icon">🔒</div>
+      <div class="sec-title">Ma'lumotlar xavfsizligi</div>
+      <div class="sec-desc">Barcha shaxsiy ma'lumotlaringiz shifrlangan holda saqlanadi. Uchinchi shaxslarga hech qachon berilmaydi.</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-icon">💳</div>
+      <div class="sec-title">To'lov xavfsizligi</div>
+      <div class="sec-desc">To'lovlar faqat tasdiqlangan karta orqali amalga oshiriladi. Chek yuklash orqali har bir to'lov nazorat qilinadi.</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-icon">⚡</div>
+      <div class="sec-title">Tezkor xizmat</div>
+      <div class="sec-desc">Buyurtmangiz tezkorlikda bajariladi.</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-icon">🛡️</div>
+      <div class="sec-title">Kafolat</div>
+      <div class="sec-desc">Har bir buyurtma admin tomonidan nazorat qilinadi.</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-icon">👁️</div>
+      <div class="sec-title">Shaffoflik</div>
+      <div class="sec-desc">Buyurtmangiz har bir bosqichini real vaqtda kuzating. Hech qanday yashirin to'lovlar yo'q.</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-icon">🤝</div>
+      <div class="sec-title">Ishonchlilik</div>
+      <div class="sec-desc">5000+ mijoz bizga ishonadi. Har bir xizmat sifati maxsus nazorat tizimi orqali tekshiriladi.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" id="reviews">
+  <div class="section-badge">Sharhlar</div>
+  <div class="section-title">Foydalanuvchilar nima deydi?</div>
+  <p class="section-sub">Minglab mijozlarimizning fikrlari</p>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"Telegram kanalim 2 kunda 1000 ta obunachiga yetdi. Xizmat juda tez va sifatli!"</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#4f8ef7,#6c63ff)">J</div>
+        <div><div class="testi-name">Jasur A.</div><div class="testi-role">Telegram kanal egasi</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"Instagram sahifam uchun 500 ta obunachi oldim. Narxi arzon, sifati zo'r. Tavsiya qilaman!"</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#e91e8c,#f59e0b)">M</div>
+        <div><div class="testi-name">Malika S.</div><div class="testi-role">Instagram blogger</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"Ish bajaruvchi sifatida har kuni 50-80 ming so'm ishlab olaman. Juda qulay platforma!"</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#34d399,#059669)">B</div>
+        <div><div class="testi-name">Bobur T.</div><div class="testi-role">Ish bajaruvchi</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta" id="cta">
+  <h2>Hoziroq boshlang!</h2>
+  <p>Minglab foydalanuvchilarga qo'shiling va ijtimoiy tarmoqlaringizni rivojlantiring</p>
+  <div class="cta-btns">
+    <a href="register.html?role=customer" class="cta-btn cta-btn-primary">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Buyurtmachi sifatida kirish
+    </a>
+    <a href="register.html?role=worker" class="cta-btn cta-btn-primary">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Ish bajaruvchi sifatida kirish
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  
+  <div class="footer-links">
+    <a href="#how" class="footer-link">Qanday ishlaydi</a>
+    <a href="#platforms" class="footer-link">Platformalar</a>
+    <a href="#security" class="footer-link">Xavfsizlik</a>
+    <a href="login.html" class="footer-link">Kirish</a>
+    <a href="register.html" class="footer-link">Ro'yxatdan o'tish</a>
+  </div>
+  <div class="footer-copy">© 2026 . Barcha huquqlar himoyalangan.</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+// Superadmin panelidan saqlangan ijtimoiy tarmoq havolalarini yuklash
+async function loadSocialLinks(){
+  const map = {
+    'social-tg':  'social_telegram',
+    'social-ig':  'social_instagram',
+    'social-yt':  'social_youtube',
+    'social-tt':  'social_tiktok',
+  };
+
+  function isUsableUrl(value){
+    try{
+      const url = new URL(value);
+      return url.protocol === 'https:' || url.protocol === 'http:';
+    }catch(error){
+      return false;
+    }
+  }
+
+  function applyLink(id, value){
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (value && isUsableUrl(value)) {
+      el.href = value;
+      el.style.opacity = '1';
+      el.style.pointerEvents = '';
+    } else {
+      el.href = '#';
+      el.style.opacity = '0.45';
+      el.style.pointerEvents = 'none';
+    }
+  }
+
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    applyLink(id, el?.getAttribute('href') || '');
+    const cached = localStorage.getItem(key);
+    if(cached !== null) applyLink(id, cached);
+  });
+
+  const keys = Object.values(map);
+  const {data, error} = await sb.from('settings').select('key,value').in('key', keys);
+  if(error) return;
+  const values = Object.fromEntries((data || []).map(row => [row.key, row.value || '']));
+  Object.entries(map).forEach(([id, key]) => {
+    if(!Object.prototype.hasOwnProperty.call(values, key)) return;
+    localStorage.setItem(key, values[key]);
+    applyLink(id, values[key]);
+  });
+}
+document.addEventListener('DOMContentLoaded', loadSocialLinks);
+
+function toggleMenu(){
+  const links = document.querySelector('.nav-links');
+  if(links.style.display === 'flex'){
+    links.style.display = 'none';
+  } else {
+    links.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:60px;left:0;right:0;background:rgba(10,10,15,0.97);padding:20px;gap:16px;border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(16px);z-index:99';
+  }
+}
+// Close menu on link click
+document.querySelectorAll('.nav-link').forEach(l => {
+  l.addEventListener('click', () => {
+    document.querySelector('.nav-links').style.display = '';
+  });
+});
+</script>
+
+<script>
+function updateLiveStats() {
+  // Count registered customers
+  const customers = JSON.parse(localStorage.getItem('sb_users') || '[]');
+  // Count registered workers
+  const workers = JSON.parse(localStorage.getItem('sb_workers') || '[]');
+  const totalUsers = customers.length + workers.length;
+
+  // Count completed orders (from all users)
+  let totalOrders = 0;
+  customers.forEach(u => {
+    const orders = JSON.parse(localStorage.getItem('sb_orders_' + u.login) || '[]');
+    totalOrders += orders.filter(o => o.status === 'done').length;
+  });
+
+  // Animate counter
+  function animateNum(el, target, suffix) {
+    if (!el) return;
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) { current = target; clearInterval(timer); }
+      el.textContent = current.toLocaleString() + suffix;
+    }, 30);
+  }
+
+  const usersEl = document.getElementById('statUsers');
+  const ordersEl = document.getElementById('statOrders');
+
+  animateNum(usersEl, totalUsers, '+');
+  animateNum(ordersEl, totalOrders > 0 ? totalOrders : 0, totalOrders > 0 ? '+' : '');
+}
+
+// Run on load
+window.addEventListener('DOMContentLoaded', updateLiveStats);
+// Update every 10 seconds
+setInterval(updateLiveStats, 10000);
+</script>
+</body>
+</html>

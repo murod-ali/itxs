@@ -1,0 +1,2381 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superadmin — SocialBoost UZ</title>
+<style>
+:root {
+  --bg:#07070d; --surface:#0f0f18; --surface2:#161622; --surface3:#1c1c2a;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --accent:#f59e0b; --accent2:#d97706;
+  --green:#34d399; --blue:#4f8ef7; --purple:#a855f7;
+  --red:#f87171; --orange:#fb923c;
+  --text:#f0f0f5; --muted:#6b6b80; --sidebar:230px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Calibri, Arial, sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 14px;position:fixed;left:0;top:0;z-index:50;overflow:hidden}
+.sidebar-header{padding:0 8px 14px;margin-bottom:14px;border-bottom:1px solid var(--border)}
+.lock-panel-btn{width:100%;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;transition:all 0.2s}
+.lock-panel-btn:hover{background:rgba(248,113,113,0.22)}
+.sidebar-scroll{flex:1;overflow-y:auto;padding-right:4px;display:flex;flex-direction:column}
+.sidebar-scroll::-webkit-scrollbar{width:6px}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:999px}
+.admin-badge{display:inline-block;padding:4px 10px;border-radius:6px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:var(--accent);font-size:16px;font-weight:700;letter-spacing:0.5px;margin:0 8px 24px;text-transform:uppercase}
+.nav-section{font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0 12px;margin:16px 0 6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:10px;color:var(--muted);font-size:16px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-bottom:3px;text-decoration:none;user-select:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(245,158,11,0.1);color:var(--accent)}
+.nav-item svg{flex-shrink:0}
+.nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:6px;background:var(--red);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.sidebar-footer{margin-top:auto;padding-top:16px}
+.admin-chip{display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface2);border-radius:12px;margin-bottom:10px}
+.admin-chip-btn{width:100%;border:1px solid var(--border);cursor:pointer;text-align:left;color:var(--text);transition:all 0.2s}
+.admin-chip-btn:hover,.admin-chip-btn.active{border-color:rgba(245,158,11,0.28);background:rgba(245,158,11,0.08)}
+.avatar{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:Calibri, Arial, sans-serif;font-weight:800;font-size:16px;color:#fff;flex-shrink:0}
+.admin-info .aname{font-size:16px;font-weight:600}
+.admin-info .arole{font-size:16px;color:var(--accent)}
+.btn-logout{width:100%;padding:9px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--muted);font-size:16px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;padding:30px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:Calibri, Arial, sans-serif;font-size:21px;font-weight:800}
+.page-sub{color:var(--muted);font-size:16px;margin-top:3px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 18px 16px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;transition:border-color 0.2s,transform 0.18s;cursor:pointer}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--border2)}
+.stat-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-icon-wrap svg{width:22px;height:22px}
+.stat-icon{display:none}
+.stat-bottom{display:flex;flex-direction:column;gap:3px}
+.stat-label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.7px}
+.stat-value{font-family:Calibri, Arial, sans-serif;font-size:26px;font-weight:800;line-height:1}
+.c-green{color:var(--green)} .c-blue{color:var(--blue)} .c-orange{color:var(--orange)} .c-accent{color:var(--accent)} .c-purple{color:var(--purple)} .c-red{color:var(--red)}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.table-title{font-family:Calibri, Arial, sans-serif;font-weight:700;font-size:16px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2)}
+th{padding:12px 16px;text-align:left;font-size:16px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td{padding:13px 16px;font-size:16px;border-top:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.td-name{font-weight:600}
+.td-muted{color:var(--muted);font-size:16px}
+
+/* BADGES */
+.badge{padding:4px 10px;border-radius:20px;font-size:16px;font-weight:600;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.b-active{background:rgba(52,211,153,0.12);color:var(--green)}
+.b-blocked{background:rgba(248,113,113,0.12);color:var(--red)}
+.b-pending{background:rgba(251,146,60,0.12);color:var(--orange)}
+.b-review{background:rgba(79,142,247,0.12);color:var(--blue)}
+.b-done{background:rgba(52,211,153,0.12);color:var(--green)}
+.b-rejected{background:rgba(248,113,113,0.12);color:var(--red)}
+.b-waiting{background:rgba(168,85,247,0.12);color:var(--purple)}
+
+/* ACTION BUTTONS */
+.action-btns{display:flex;gap:6px;flex-wrap:wrap}
+.act-btn{padding:6px 12px;border-radius:8px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.act-btn:hover{transform:translateY(-1px)}
+.act-approve{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+.act-approve:hover{background:rgba(52,211,153,0.22)}
+.act-reject{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.act-reject:hover{background:rgba(248,113,113,0.22)}
+.act-edit{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.2)}
+.act-edit:hover{background:rgba(79,142,247,0.22)}
+.act-delete{background:rgba(248,113,113,0.08);color:var(--red);border:1px solid rgba(248,113,113,0.15)}
+.act-delete:hover{background:rgba(248,113,113,0.18)}
+.act-block{background:rgba(251,146,60,0.1);color:var(--orange);border:1px solid rgba(251,146,60,0.2)}
+.act-block:hover{background:rgba(251,146,60,0.2)}
+.act-view{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2)}
+.act-view:hover{background:rgba(168,85,247,0.2)}
+
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:10px;border:none;font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:7px}
+.btn-accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 18px rgba(245,158,11,0.3)}
+.btn-accent:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(245,158,11,0.45)}
+.btn-accent:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-green{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
+.btn-green:hover{transform:translateY(-2px)}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--border2);color:var(--text)}
+.btn-full{width:100%;justify-content:center}
+.btn-sm{padding:7px 14px;font-size:16px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:32px;width:100%;max-width:520px;animation:popIn 0.32s cubic-bezier(0.34,1.56,0.64,1);max-height:90vh;overflow-y:auto}
+@keyframes popIn{from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-family:Calibri, Arial, sans-serif;font-size:17px;font-weight:800}
+.modal-close{background:var(--surface2);border:none;color:var(--muted);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.modal-close:hover{background:var(--surface3);color:var(--text)}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:16px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.form-input{width:100%;padding:11px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:11px;color:var(--text);font-family:Calibri, Arial, sans-serif;font-size:16px;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--accent)}
+select.form-input{cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* SEARCH */
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-wrap svg{position:absolute;left:12px;color:var(--muted);pointer-events:none}
+.search-input{padding:9px 12px 9px 36px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:Calibri, Arial, sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;width:220px}
+.search-input:focus{border-color:var(--accent)}
+
+/* SCREENSHOT IMG */
+.ss-img{max-width:100%;border-radius:12px;border:1px solid var(--border);margin-bottom:16px}
+
+/* FLOW */
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:flex;gap:16px;align-items:flex-start;position:relative;padding-bottom:24px}
+.flow-step:last-child{padding-bottom:0}
+.flow-step::before{content:'';position:absolute;left:15px;top:32px;width:2px;height:calc(100% - 16px);background:var(--border)}
+.flow-step:last-child::before{display:none}
+.flow-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Calibri, Arial, sans-serif;font-weight:800;font-size:16px;flex-shrink:0;z-index:1}
+.flow-body .flow-title{font-weight:700;font-size:16px;margin-bottom:3px}
+.flow-body .flow-desc{font-size:16px;color:var(--muted)}
+
+/* CARD DISPLAY */
+.card-item{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.card-num{font-family:Calibri, Arial, sans-serif;font-weight:700;letter-spacing:2px;font-size:16px}
+.card-holder{font-size:16px;color:var(--muted);margin-top:3px}
+
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-icon{font-size:38px;margin-bottom:14px}
+.empty h4{font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px}
+.empty p{font-size:16px}
+
+.profile-shell{max-width:720px}
+.profile-head{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;margin-bottom:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.profile-avatar-lg{width:74px;height:74px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:Calibri, Arial, sans-serif;font-weight:800;font-size:28px;color:#fff;flex-shrink:0}
+.profile-name{font-family:Calibri, Arial, sans-serif;font-size:22px;font-weight:800}
+.profile-role{font-size:16px;color:var(--muted);margin-top:4px}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.profile-field{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+.profile-field-label{font-size:16px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.profile-field-value{font-size:16px;font-weight:600;word-break:break-word}
+.profile-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px}
+.profile-box-title{font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;margin-bottom:16px}
+.profile-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.profile-panel{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:18px}
+.profile-panel.show{display:block}
+.profile-msg{display:none;border-radius:12px;padding:12px 14px;font-size:16px;margin-bottom:12px}
+.profile-msg.show{display:block}
+.profile-msg.ok{background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--green)}
+.profile-msg.err{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.btn-link{display:none;text-decoration:none}
+
+.confirm-modal .modal{max-width:380px;text-align:center}
+.confirm-icon{font-size:44px;margin-bottom:14px}
+.confirm-btns{display:flex;gap:10px;margin-top:20px}
+
+.menu-toggle{display:none;position:fixed;top:16px;left:16px;z-index:300;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;color:var(--text)}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:18px;padding-top:56px}
+  .menu-toggle{display:flex}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  table{font-size:16px}
+  th,td{padding:10px 12px}
+}
+.mini-icon{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.16em;flex-shrink:0}.stat-icon .mini-icon,.empty-icon .mini-icon,.upload-icon .mini-icon,.platform-icon .mini-icon,.platform-icon-big .mini-icon,.history-icon .mini-icon{width:1.25em;height:1.25em}.icon-title{display:inline-flex;align-items:center;gap:8px}.icon-title .mini-icon{width:1em;height:1em}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()">
+  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="lock-panel-btn" onclick="lockPanel()" title="Panelni qulflash">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Panelni qulflash
+    </button>
+  </div>
+  <div class="sidebar-scroll">
+  <div class="admin-badge"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Superadmin</div>
+  <nav>
+    <div class="nav-section">Boshqaruv</div>
+    <a class="nav-item active" onclick="showPage('dashboard')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="nav-section">Foydalanuvchilar</div>
+    <a class="nav-item" onclick="showPage('users')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Foydalanuvchilar
+    </a>
+    <div class="nav-section">Mahsulotlar</div>
+    <a class="nav-item" onclick="showPage('packages')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Paketlar
+    </a>
+    <a class="nav-item" onclick="showPage('cards')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      To'lov kartalari
+    </a>
+    <div class="nav-section">Jarayonlar</div>
+    <a class="nav-item" onclick="showPage('orders')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+      Buyurtmalar
+    </a>
+    <a class="nav-item" onclick="showPage('screenshots')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Screenshotlar
+      <span class="nav-badge" id="ssBadge">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('withdraws')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Pul yechish
+      <span class="nav-badge" id="wdBadge">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('referrals')" id="nav-referrals">
+      <div class="nav-icon-wrap"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+      <span>Referal so'rovlar</span>
+      <span class="badge" id="refReqBadge" style="margin-left:auto;background:rgba(168,85,247,0.2);color:#a855f7;font-size:13px;padding:2px 8px;border-radius:20px;display:none">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('flow')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      System Flow
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      <a href="dashboard.html?superadmin_preview=customer" onclick="openSuperadminPreview(event,'customer')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(79,142,247,0.1);border:1px solid rgba(79,142,247,0.2);color:#4f8ef7;font-size:16px;font-weight:600;text-decoration:none;transition:all 0.2s" onmouseover="this.style.background='rgba(79,142,247,0.2)'" onmouseout="this.style.background='rgba(79,142,247,0.1)'">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Buyurtmachi
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+      <a href="worker.html?superadmin_preview=worker" onclick="openSuperadminPreview(event,'worker')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:#34d399;font-size:16px;font-weight:600;text-decoration:none;transition:all 0.2s" onmouseover="this.style.background='rgba(52,211,153,0.2)'" onmouseout="this.style.background='rgba(52,211,153,0.1)'">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Ish Bajaruvchi
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>
+    <button class="admin-chip admin-chip-btn" id="profileShortcut" onclick="showPage('profile')">
+      <div class="avatar" id="adminSidebarAvatar">A</div>
+      <div class="admin-info">
+        <div class="aname">Shaxsiy kabinet</div>
+        <div class="arole" id="adminSidebarRole"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Superadmin</div>
+      </div>
+    </button>
+    <button class="btn-logout" onclick="logout()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Chiqish
+    </button>
+  </div>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Superadmin sahifasi</div><div class="page-sub">Umumiy holat va statistika</div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card" onclick="showPage('users')">
+      <div class="stat-icon-wrap" style="background:rgba(79,142,247,0.13)">
+        <svg fill="none" stroke="#4f8ef7" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Foydalanuvchilar</div><div class="stat-value c-blue" id="ds-users">0</div></div>
+    </div>
+    <div class="stat-card" onclick="showPage('orders')">
+      <div class="stat-icon-wrap" style="background:rgba(168,85,247,0.13)">
+        <svg fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Jami buyurtmalar</div><div class="stat-value c-purple" id="ds-orders">0</div></div>
+    </div>
+    <div class="stat-card" onclick="showPage('orders')">
+      <div class="stat-icon-wrap" style="background:rgba(251,146,60,0.13)">
+        <svg fill="none" stroke="#fb923c" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Kutishdagi</div><div class="stat-value c-orange" id="ds-pending">0</div></div>
+    </div>
+    <div class="stat-card" onclick="showPage('screenshots')">
+      <div class="stat-icon-wrap" style="background:rgba(245,158,11,0.13)">
+        <svg fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Screenshotlar</div><div class="stat-value c-accent" id="ds-ss">0</div></div>
+    </div>
+    <div class="stat-card" onclick="showPage('withdraws')">
+      <div class="stat-icon-wrap" style="background:rgba(248,113,113,0.13)">
+        <svg fill="none" stroke="#f87171" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Pul so'rovlari</div><div class="stat-value c-red" id="ds-wd">0</div></div>
+    </div>
+    <div class="stat-card" onclick="showPage('packages')">
+      <div class="stat-icon-wrap" style="background:rgba(52,211,153,0.13)">
+        <svg fill="none" stroke="#34d399" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Paketlar</div><div class="stat-value c-green" id="ds-pkgs">0</div></div>
+    </div>
+    <div class="stat-card" onclick="showPage('referrals')">
+      <div class="stat-icon-wrap" style="background:rgba(168,85,247,0.13)">
+        <svg fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <div class="stat-bottom"><div class="stat-label">Referal so'rovlar</div><div class="stat-value" style="color:#a855f7" id="ds-refs">0</div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px">
+      <div style="font-family:Calibri, Arial, sans-serif;font-weight:700;margin-bottom:16px;font-size:16px"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg> Tezkor harakatlar</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-accent btn-full" onclick="showPage('packages');openPkgModal()">+ Yangi paket qo'shish</button>
+        <button class="btn btn-outline btn-full" onclick="showPage('cards');openModal('cardModal')">+ Karta qo'shish</button>
+        <button class="btn btn-outline btn-full" onclick="showPage('screenshots')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Screenshotlarni ko'rish</button>
+        <button class="btn btn-outline btn-full" onclick="showPage('withdraws')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Pul so'rovlarini ko'rish</button>
+        <button class="btn btn-outline btn-full" onclick="showPage('referrals')" style="border-color:rgba(168,85,247,0.35);color:#a855f7"><svg class="mini-icon" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Referal so'rovlarni ko'rish</button>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px">
+      <div style="font-family:Calibri, Arial, sans-serif;font-weight:700;margin-bottom:16px;font-size:16px"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> So'nggi faoliyat</div>
+      <div id="recentActivity" style="display:flex;flex-direction:column;gap:8px">
+        <div style="color:var(--muted);font-size:16px;text-align:center;padding:20px">Hali faoliyat yo'q</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- USERS -->
+<div class="page" id="page-users">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Foydalanuvchilar</div><div class="page-sub">Barcha ro'yxatdan o'tgan foydalanuvchilar</div></div>
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-input" placeholder="Qidirish..." oninput="filterUsers(this.value)">
+    </div>
+  </div>
+  <!-- Toifa tablar -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="btn btn-accent btn-sm" id="userTabCustomer" onclick="setUserTab('customer')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Buyurtmachilar
+    </button>
+    <button class="btn btn-outline btn-sm" id="userTabWorker" onclick="setUserTab('worker')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Ish bajaruvchilar
+    </button>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title" id="userTableTitle">Buyurtmachilar ro'yxati</div>
+      <div style="font-size:16px;color:var(--muted)" id="userCount">0 ta</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Ism</th><th>Login</th><th>ID</th><th>Telefon</th><th>Gmail</th><th>Status</th><th>Ro'yxatdan o'tgan sana</th><th>Amallar</th>
+        </tr></thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PACKAGES -->
+<div class="page" id="page-packages">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Paketlar</div><div class="page-sub">Xizmat paketlarini boshqarish</div></div>
+    <button class="btn btn-accent" onclick="openPkgModal()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Yangi paket
+    </button>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header"><div class="table-title">Barcha paketlar</div><div style="font-size:16px;color:var(--muted)" id="pkgCount">0 ta</div></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>#</th><th>Nomi</th><th>Platforma</th><th>Xizmat turi</th><th>Soni</th><th>Narxi</th><th>Worker to'lovi</th><th>Daraja</th><th>Amallar</th></tr></thead>
+        <tbody id="pkgsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CARDS -->
+<div class="page" id="page-cards">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> To'lov kartalari</div><div class="page-sub">Buyurtmachilar to'laydigan kartalar</div></div>
+    <button class="btn btn-accent" onclick="openCardModal()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Karta qo'shish
+    </button>
+  </div>
+  <div id="cardsList" style="max-width:600px"></div>
+</div>
+
+<!-- ORDERS -->
+<div class="page" id="page-orders">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Buyurtmalar</div><div class="page-sub">Barcha buyurtmalar va statuslari</div></div>
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-input" placeholder="Qidirish...">
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header"><div class="table-title">Barcha buyurtmalar</div><div style="font-size:16px;color:var(--muted)" id="orderCount">0 ta</div></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>#</th><th>Foydalanuvchi</th><th>Platforma</th><th>Paket</th><th>Havola</th><th>Narx</th><th>Status</th><th>Sana</th><th>Amallar</th></tr></thead>
+        <tbody id="ordersTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SCREENSHOTS -->
+<div class="page" id="page-screenshots">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Screenshotlar</div><div class="page-sub">Buyurtmachilar va Ish bajaruvchilar yuborgan screenshotlar</div></div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="btn btn-accent btn-sm" id="ssCustomerTab" onclick="setScreenshotTab('customer')">Buyurtmachilar</button>
+    <button class="btn btn-accent btn-sm" id="ssWorkerTab" onclick="setScreenshotTab('worker')">Ish bajaruvchilar</button>
+  </div>
+  <div id="ssGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+</div>
+
+<!-- WITHDRAWS -->
+<div class="page" id="page-withdraws">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Pul yechish so'rovlari</div><div class="page-sub">Ish bajaruvchilarning pul yechish so'rovlari</div></div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;max-width:480px">
+    <div style="font-weight:700;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px">
+      <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+      Minimal yechib olish summasi
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Ish bajaruvchi pul yechish uchun balansida kamida qancha mablag' bo'lishi kerak</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <input type="number" id="minWithdrawInput" class="form-input" style="max-width:160px" placeholder="Masalan: 10000" min="1">
+      <button class="btn btn-accent btn-sm" onclick="saveMinWithdraw()">Saqlash</button>
+      <span id="minWithdrawMsg" style="font-size:13px;color:var(--green);display:none">✓ Saqlandi</span>
+    </div>
+    <div style="margin-top:10px;font-size:13px;color:var(--muted)">Joriy minimal summa: <strong style="color:var(--accent)" id="currentMinWithdraw">—</strong></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header"><div class="table-title">So'rovlar ro'yxati</div></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>#</th><th>Worker</th><th>Karta</th><th>Karta egasi</th><th>Summa</th><th>Status</th><th>Sana</th><th>Amallar</th></tr></thead>
+        <tbody id="withdrawsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- REFERRAL REQUESTS -->
+<div class="page" id="page-referrals">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Referal So'rovlar</div><div class="page-sub">Worker taklif qilgan foydalanuvchilar ro'yxati</div></div>
+  </div>
+  <div id="referralRequestsList" style="padding:0 0 24px"></div>
+</div>
+
+<!-- FLOW -->
+<div class="page" id="page-flow">
+  <div class="topbar">
+    <div><div class="page-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> System Flow</div><div class="page-sub">To'liq jarayon ketma-ketligi</div></div>
+  </div>
+  <div style="max-width:600px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(245,158,11,0.15);color:var(--accent)">1</div>
+        <div class="flow-body"><div class="flow-title">Admin paket yaratadi</div><div class="flow-desc">Platforma, xizmat turi, narx va worker to'lovi belgilanadi</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(79,142,247,0.15);color:var(--blue)">2</div>
+        <div class="flow-body"><div class="flow-title">Customer buyurtma beradi</div><div class="flow-desc">Paket tanlab, havola kiritadi</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(168,85,247,0.15);color:var(--purple)">3</div>
+        <div class="flow-body"><div class="flow-title">Customer chek yuklaydi</div><div class="flow-desc">To'lov chekini rasm shaklida yuboradi</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(251,146,60,0.15);color:var(--orange)">4</div>
+        <div class="flow-body"><div class="flow-title">Admin to'lovni tasdiqlaydi</div><div class="flow-desc">Chek tekshiriladi, buyurtma > active holatga o'tadi</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(52,211,153,0.15);color:var(--green)">5</div>
+        <div class="flow-body"><div class="flow-title">Ish bajaruvchi buyurtmani bajaradi</div><div class="flow-desc">Havola orqali xizmatni bajaradi</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(79,142,247,0.15);color:var(--blue)">6</div>
+        <div class="flow-body"><div class="flow-title">Ish bajaruvchi screenshot yuboradi</div><div class="flow-desc">Bajarganligi haqida rasm yuklaydi</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:rgba(52,211,153,0.15);color:var(--green)">7</div>
+        <div class="flow-body"><div class="flow-title">Buyurtmachi tasdiqlaydi</div><div class="flow-desc">Screenshotni ko'rib tasdiqlaydi va worker balansiga pul yoziladi</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="topbar">
+    <div><div class="page-title">Shaxsiy kabinet</div><div class="page-sub">Superadmin ma'lumotlari</div></div>
+  </div>
+  <div class="profile-shell">
+    <div class="profile-head">
+      <div class="profile-avatar-lg" id="adminProfileAvatar">A</div>
+      <div>
+        <div class="profile-name" id="adminProfileTitle">Superadmin</div>
+        <div class="profile-role">Asosiy boshqaruv hisobi</div>
+      </div>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-field"><div class="profile-field-label">Ism</div><div class="profile-field-value" id="adminFieldName">—</div></div>
+      <div class="profile-field"><div class="profile-field-label">ID</div><div class="profile-field-value" id="adminFieldId">—</div></div>
+      <div class="profile-field"><div class="profile-field-label">Login</div><div class="profile-field-value" id="adminFieldLogin">—</div></div>
+      <div class="profile-field"><div class="profile-field-label">Gmail</div><div class="profile-field-value" id="adminFieldEmail">—</div></div>
+    </div>
+    <!-- Gmailni almashtirish -->
+    <div class="profile-box" style="margin-bottom:18px">
+      <div class="profile-box-title">Gmailni almashtirish</div>
+      <div class="profile-panel show" id="adminEmailPanel">
+        <div class="form-group">
+          <label>Yangi Gmail yozing</label>
+          <input type="email" class="form-input" id="adminNewEmail" placeholder="example@gmail.com">
+        </div>
+        <div class="profile-msg" id="adminEmailMsg"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-accent" onclick="sendAdminEmailVerification()">Tasdiqlash havolasini yuborish</button>
+          <a class="btn btn-outline btn-link" id="adminEmailVerifyLink" target="_blank" rel="noopener noreferrer">Tasdiqlash havolasini ochish</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parolni almashtirish -->
+    <div class="profile-box" style="margin-bottom:18px">
+      <div class="profile-box-title">Parolni almashtirish</div>
+      <div class="profile-panel show" id="adminPasswordPanel">
+        <div class="form-group">
+          <label>Joriy parol</label>
+          <input type="password" class="form-input" id="adminCurrentPassword" placeholder="joriy parol">
+        </div>
+        <div class="form-group">
+          <label>Yangi parol</label>
+          <input type="password" class="form-input" id="adminNewPassword" placeholder="kamida 8 belgi">
+        </div>
+        <div class="form-group">
+          <label>Yangi parolni tasdiqlang</label>
+          <input type="password" class="form-input" id="adminConfirmPassword" placeholder="qayta kiriting">
+        </div>
+        <div class="profile-msg" id="adminPasswordMsg"></div>
+        <button class="btn btn-accent" onclick="saveAdminPassword()">Saqlash</button>
+      </div>
+    </div>
+
+    <!-- Ijtimoiy tarmoqlar -->
+    <div class="profile-box" style="margin-bottom:18px">
+      <div class="profile-box-title">Ijtimoiy tarmoqlar havolalari</div>
+      <div class="form-group">
+        <label>Telegram havolasi</label>
+        <input type="url" class="form-input" id="telegramLink" placeholder="https://t.me/...">
+      </div>
+      <div class="form-group">
+        <label>Instagram havolasi</label>
+        <input type="url" class="form-input" id="instagramLink" placeholder="https://instagram.com/...">
+      </div>
+      <div class="form-group">
+        <label>YouTube havolasi</label>
+        <input type="url" class="form-input" id="youtubeLink" placeholder="https://youtube.com/...">
+      </div>
+      <div class="form-group">
+        <label>TikTok havolasi</label>
+        <input type="url" class="form-input" id="tiktokLink" placeholder="https://tiktok.com/...">
+      </div>
+      <div class="profile-msg" id="socialLinksMsg"></div>
+      <button class="btn btn-accent" onclick="saveSocialLinks()">Ijtimoiy tarmoqlar havolalarini saqlash</button>
+    </div>
+
+    <!-- Yordam tugmasi -->
+    <div class="profile-box" style="margin-bottom:18px">
+      <div class="profile-box-title">Yordam tugmasi havolasi</div>
+      <div class="form-group">
+        <label>Havola (Telegram yoki boshqa)</label>
+        <input type="url" class="form-input" id="helpLinkInput" placeholder="https://t.me/username yoki https://...">
+      </div>
+      <div class="profile-msg" id="helpLinkMsg"></div>
+      <button class="btn btn-accent" onclick="saveHelpLink()">Yordam havolasini saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCKED USER FULLSCREEN OVERLAY (foydalanuvchi sahifalarida ishlatiladi) -->
+<div id="blockedOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#07070d 0%,#0f0f18 100%);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px">
+  <div style="font-size:64px;margin-bottom:24px">🚫</div>
+  <h1 style="font-family:Calibri,Arial,sans-serif;font-size:26px;font-weight:800;color:#f0f0f5;margin-bottom:16px;max-width:500px;line-height:1.4">Sayt qoidalarini buzganingiz uchun bloklangansiz</h1>
+  <p style="font-size:17px;color:#6b6b80;margin-bottom:32px;max-width:420px;line-height:1.6">Sababini bilish uchun qo'llab-quvvatlash xizmatiga yozing</p>
+  <button onclick="openHelpFromBlock()" style="padding:14px 32px;border-radius:14px;border:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-family:Calibri,Arial,sans-serif;font-size:18px;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 6px 24px rgba(245,158,11,0.4)">
+    💬 Yordam
+  </button>
+</div>
+
+<script>
+function openHelpFromBlock(){
+  const link = localStorage.getItem('sb_help_link') || 'https://t.me/';
+  window.open(link, '_blank');
+}
+
+// Bloklangan foydalanuvchini tekshirish (dashboard.html va worker.html da ham shu kod ishlatiladi)
+function checkBlockedStatus(){
+  const currentUser = JSON.parse(localStorage.getItem('sb_current_user')||localStorage.getItem('sb_current_worker')||'null');
+  if(currentUser && currentUser.status === 'blocked'){
+    const overlay = document.getElementById('blockedOverlay');
+    if(overlay){ overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+}
+</script>
+
+<div class="modal-overlay" id="pkgModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="pkgModalTitle"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Yangi paket</div>
+      <button class="modal-close" onclick="closeModal('pkgModal')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Platforma</label>
+        <select class="form-input" id="pkgPlatform">
+          <option value="Telegram">Telegram</option>
+          <option value="Instagram">Instagram</option>
+          <option value="YouTube">YouTube</option>
+          <option value="TikTok">TikTok</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Daraja</label>
+        <select class="form-input" id="pkgTier">
+          <option value="bronze">Bronza</option>
+          <option value="silver">Kumush</option>
+          <option value="platinum">Platina</option>
+          <option value="custom">Maxsus</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Xizmat turi</label>
+      <input type="text" class="form-input" id="pkgType" placeholder="masalan: Obunachi / Layk / Ko'rish">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Soni</label>
+        <input type="number" class="form-input" id="pkgAmount" placeholder="1000">
+      </div>
+      <div class="form-group">
+        <label>Narxi (so'm)</label>
+        <input type="number" class="form-input" id="pkgPrice" placeholder="50000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Ish bajaruvchiga to'lov (so'm)</label>
+      <input type="number" class="form-input" id="pkgWorkerPay" placeholder="Masalan: 5 000">
+    </div>
+    <div class="form-group">
+      <label>Izoh (ixtiyoriy)</label>
+      <input type="text" class="form-input" id="pkgNote" placeholder="Masalan: 10% chegirma">
+    </div>
+    <div style="color:var(--red);font-size:16px;display:none;margin-bottom:12px" id="pkgErr">Xizmat turi, soni, narxi va workerga to'lanadigan summani kiriting</div>
+    <button class="btn btn-accent btn-full" onclick="savePkg()">Saqlash</button>
+  </div>
+</div>
+
+<!-- CARD MODAL -->
+<div class="modal-overlay" id="cardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cardModalTitle"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Karta qo'shish</div>
+      <button class="modal-close" onclick="closeModal('cardModal')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="form-group">
+      <label>Karta raqami</label>
+      <input type="text" class="form-input" id="cardNum" placeholder="8600 0000 0000 0000" maxlength="19" oninput="fmtCard(this)">
+    </div>
+    <div class="form-group">
+      <label>Karta egasi (ism familiya)</label>
+      <input type="text" class="form-input" id="cardHolder" placeholder="JASUR ABDULLAYEV">
+    </div>
+    <div class="form-group">
+      <label>Bank</label>
+      <input type="text" class="form-input" id="cardBank" placeholder="Uzcard / Humo / Visa">
+    </div>
+    <div style="color:var(--red);font-size:16px;display:none;margin-bottom:12px" id="cardErr">Barcha maydonlarni to'ldiring</div>
+    <button class="btn btn-accent btn-full" onclick="saveCard()">Saqlash</button>
+  </div>
+</div>
+
+<!-- SCREENSHOT VIEW MODAL -->
+<div class="modal-overlay" id="ssViewModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Screenshot ko'rish</div>
+      <button class="modal-close" onclick="closeModal('ssViewModal')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div><div style="font-size:16px;color:var(--muted);margin-bottom:3px">Worker</div><div style="font-weight:600" id="ssWorkerName">—</div></div>
+        <div><div style="font-size:16px;color:var(--muted);margin-bottom:3px">Platforma</div><div style="font-weight:600" id="ssPlatform">—</div></div>
+        <div><div style="font-size:16px;color:var(--muted);margin-bottom:3px">To'lov</div><div style="font-weight:600;color:var(--green)" id="ssReward">—</div></div>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border-radius:12px;padding:40px;text-align:center;margin-bottom:16px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:8px"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <div style="font-size:16px">Screenshot fayli yuklangan<br><span id="ssFileName2" style="color:var(--accent)">fayl.jpg</span></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-green btn-full" onclick="approveScreenshot()"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Tasdiqlash</button>
+      <button class="btn btn-outline btn-full" style="border-color:rgba(248,113,113,0.3);color:var(--red)" onclick="rejectScreenshot()"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Rad etish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER STATUS MODAL -->
+<div class="modal-overlay" id="orderStatusModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title">Status o'zgartirish</div>
+      <button class="modal-close" onclick="closeModal('orderStatusModal')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="form-group">
+      <label>Yangi status</label>
+      <select class="form-input" id="newOrderStatus">
+        <option value="pending_payment">To'lov kutilmoqda</option>
+        <option value="waiting_admin">Admin tekshirmoqda</option>
+        <option value="active">Faol (Ish bajaruvchi bajaryapti)</option>
+        <option value="pending_review">Screenshot tekshiruvda</option>
+        <option value="done">Bajarildi</option>
+        <option value="rejected">Rad etildi</option>
+      </select>
+    </div>
+    <button class="btn btn-accent btn-full" onclick="saveOrderStatus()">Saqlash</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay confirm-modal" id="confirmModal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div class="confirm-icon" id="confirmIcon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <div class="modal-title" id="confirmTitle" style="margin-bottom:8px">Ishonchingiz komilmi?</div>
+    <div style="color:var(--muted);font-size:16px" id="confirmText">Bu amalni bajarishni xohlaysizmi?</div>
+    <div class="confirm-btns">
+      <button class="btn btn-outline btn-full" onclick="closeModal('confirmModal')">Bekor</button>
+      <button class="btn btn-accent btn-full" id="confirmOkBtn" onclick="confirmAction()">Ha, bajar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+
+// ===== SBApp =====
+const SBApp = {
+  state: { users:[], packages:[], cards:[], orders:[], screenshots:[], notifications:[], referralRequests:[], workerTasks:[], withdraws:[] },
+  _intervals: [],
+  number: v => parseInt(v)||0,
+  escapeHtml: s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),
+  formatDate: ts => ts ? new Date(ts).toLocaleString('uz') : '-',
+  toMillis: ts => ts ? new Date(ts).getTime() : 0,
+  formatPrice: p => (parseInt(p)||0).toLocaleString() + " so'm",
+  nowServer: () => new Date().toISOString(),
+  cleanupListeners(){ this._intervals.forEach(clearInterval); this._intervals=[]; },
+  iconMap: {
+    Telegram:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>`,
+    Instagram:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>`,
+    YouTube:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 16 12 10 15 10 9"/></svg>`,
+    TikTok:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
+  },
+  async approveCustomerScreenshot(s){
+    await sb.from('cheklar').update({ holat: 'tasdiqlandi' }).eq('id', s.id);
+    await sb.from('buyurtmalar').update({ holat: 'active' }).eq('id', s.buyurtma_id);
+  },
+  async rejectCustomerScreenshot(s){
+    await sb.from('cheklar').update({ holat: 'rad_etildi' }).eq('id', s.id);
+  },
+  async approveWorkerScreenshot(s){
+    throw new Error("Worker screenshotini buyurtmachi tasdiqlaydi.");
+  },
+  async rejectWorkerScreenshot(s){
+    await sb.from('bajarilgan_ishlar').update({ holat: 'rad_etildi' }).eq('id', s.id);
+  },
+  async cleanupExpiredOrders(){
+    const now = new Date().toISOString();
+    try{
+      await sb.from('buyurtmalar')
+        .delete()
+        .eq('holat','pending')
+        .eq('payment_status','kutilmoqda')
+        .lt('expires_at', now);
+    }catch(e){ console.warn('Muddati o\'tgan buyurtmalarni tozalashda xato:', e); }
+  }
+};
+const SOCIAL_LINK_FIELDS = {
+  social_telegram: 'telegramLink',
+  social_instagram: 'instagramLink',
+  social_youtube: 'youtubeLink',
+  social_tiktok: 'tiktokLink'
+};
+
+function isValidSocialUrl(value){
+  if(!value) return true;
+  try{
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  }catch(error){
+    return false;
+  }
+}
+
+async function saveSocialLinks(){
+  const rows = Object.entries(SOCIAL_LINK_FIELDS).map(([key, id]) => ({
+    key,
+    value: document.getElementById(id).value.trim()
+  }));
+  const invalid = rows.find(row => !isValidSocialUrl(row.value));
+  if(invalid){
+    alert("Havolalarni http:// yoki https:// bilan to'g'ri kiriting.");
+    return;
+  }
+
+  rows.forEach(row => localStorage.setItem(row.key, row.value));
+  const {error} = await sb.from('settings').upsert(rows, {onConflict:'key'});
+  if(error){
+    console.error('Ijtimoiy tarmoq havolalarini saqlashda xato:', error);
+    alert("Havolalarni umumiy bazaga saqlab bo'lmadi. Internet va Supabase sozlamalarini tekshiring.");
+    return;
+  }
+
+  const msg = document.getElementById('socialLinksMsg');
+  msg.textContent = "Saqlandi. Havolalar barcha foydalanuvchilar uchun yangilandi.";
+  msg.className = 'profile-msg show ok';
+  setTimeout(() => {
+    msg.textContent = '';
+    msg.className = 'profile-msg';
+  }, 3000);
+}
+
+async function loadAdminSocialLinks(){
+  Object.entries(SOCIAL_LINK_FIELDS).forEach(([key, id]) => {
+    document.getElementById(id).value = localStorage.getItem(key) || '';
+  });
+
+  const keys = Object.keys(SOCIAL_LINK_FIELDS);
+  const {data, error} = await sb.from('settings').select('key,value').in('key', keys);
+  if(error) return;
+  (data || []).forEach(row => {
+    const id = SOCIAL_LINK_FIELDS[row.key];
+    if(!id) return;
+    const value = row.value || '';
+    document.getElementById(id).value = value;
+    localStorage.setItem(row.key, value);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', loadAdminSocialLinks);
+// ===== STORAGE HELPERS =====
+const get = k => JSON.parse(localStorage.getItem('sa_'+k)||'[]');
+const set = (k,v) => localStorage.setItem('sa_'+k, JSON.stringify(v));
+const getObj = (k,d) => JSON.parse(localStorage.getItem('sa_'+k)||JSON.stringify(d));
+
+// ===== STATE =====
+let editPkgId = null;
+let editCardId = null;
+let currentSSIdx = null;
+let currentOrderId = null;
+let pendingConfirm = null;
+let adminProfile = null;
+
+const DEFAULT_ADMIN_PROFILE = {
+  name:'Superadmin',
+  userId:'ADM001',
+  login:'ali2004',
+  email:'shmurodov200@gmail.com',
+  password:'08100422'
+};
+
+function isSuperadminEmail(value){
+  return String(value || '').trim().toLowerCase() === DEFAULT_ADMIN_PROFILE.email.toLowerCase();
+}
+
+function ensureAdminProfile(){
+  const stored = JSON.parse(localStorage.getItem('sb_admin_profile') || 'null') || {};
+  adminProfile = {
+    name: stored.name || DEFAULT_ADMIN_PROFILE.name,
+    userId: stored.userId || DEFAULT_ADMIN_PROFILE.userId,
+    login: DEFAULT_ADMIN_PROFILE.login,
+    email: DEFAULT_ADMIN_PROFILE.email,
+    password: DEFAULT_ADMIN_PROFILE.password
+  };
+  localStorage.setItem('sb_admin_profile', JSON.stringify(adminProfile));
+  return adminProfile;
+}
+
+function generateUserId(existingIds = new Set()){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let nextId = '';
+  do{
+    nextId = 'SB';
+    for(let i = 0; i < 6; i++) nextId += chars[Math.floor(Math.random() * chars.length)];
+  }while(existingIds.has(nextId));
+  existingIds.add(nextId);
+  return nextId;
+}
+
+function normalizeCustomerUsers(users){
+  if(!users.length) return users;
+  const usedIds = new Set(users.map(u => u.userId).filter(Boolean));
+  let changed = false;
+  const normalized = users.map(user => {
+    if(user.userId) return user;
+    changed = true;
+    return {...user, userId: generateUserId(usedIds)};
+  });
+  if(changed){
+    localStorage.setItem('sb_users', JSON.stringify(normalized));
+  }
+  const currentUser = JSON.parse(localStorage.getItem('sb_current_user') || 'null');
+  if(currentUser){
+    const syncedCurrent = normalized.find(u => u.login === currentUser.login || u.email === currentUser.email);
+    if(syncedCurrent){
+      localStorage.setItem('sb_current_user', JSON.stringify({...currentUser, ...syncedCurrent}));
+    }
+  }
+  return normalized;
+}
+
+const BROKEN_TEXT_MAP = {};
+
+function fixBrokenEmojiText(root=document.body){
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while(walker.nextNode()){
+    let value = walker.currentNode.nodeValue;
+    let nextValue = value;
+    Object.entries(BROKEN_TEXT_MAP).forEach(([broken,fixed])=>{
+      nextValue = nextValue.split(broken).join(fixed);
+    });
+    if(nextValue !== value){
+      walker.currentNode.nodeValue = nextValue;
+    }
+  }
+}
+
+function renderAdminProfile(){
+  const profile = ensureAdminProfile();
+  const firstLetter = (profile.name || 'A').charAt(0).toUpperCase();
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = value || '—';
+  };
+
+  setText('adminFieldName', profile.name);
+  setText('adminFieldId', profile.userId);
+  setText('adminFieldLogin', profile.login);
+  setText('adminFieldEmail', profile.email);
+  setText('adminProfileTitle', profile.name);
+  document.getElementById('adminSidebarRole').innerHTML = '<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Superadmin';
+
+  const sidebarAvatar = document.getElementById('adminSidebarAvatar');
+  const profileAvatar = document.getElementById('adminProfileAvatar');
+  if(sidebarAvatar) sidebarAvatar.textContent = firstLetter;
+  if(profileAvatar) profileAvatar.textContent = firstLetter;
+  const helpInput = document.getElementById('helpLinkInput');
+  if(helpInput) helpInput.value = localStorage.getItem('sb_help_link') || '';
+}
+
+function saveHelpLink(){
+  const input = document.getElementById('helpLinkInput');
+  const link = input.value.trim();
+  if(link && !/^https?:\/\//i.test(link)){
+    showProfileMessage('helpLinkMsg', 'Havola http:// yoki https:// bilan boshlansin.', false);
+    return;
+  }
+  localStorage.setItem('sb_help_link', link);
+  showProfileMessage('helpLinkMsg', 'Yordam havolasi saqlandi ✅', true);
+}
+
+function toggleAdminEmailPanel(){
+  document.getElementById('adminPasswordPanel').classList.remove('show');
+  document.getElementById('adminEmailPanel').classList.toggle('show');
+}
+
+function toggleAdminPasswordPanel(){
+  document.getElementById('adminEmailPanel').classList.remove('show');
+  document.getElementById('adminPasswordPanel').classList.toggle('show');
+}
+
+function showProfileMessage(id, text, ok){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  el.className = `profile-msg show ${ok ? 'ok' : 'err'}`;
+}
+
+function clearProfileMessage(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = '';
+  el.className = 'profile-msg';
+}
+
+function sendAdminEmailVerification(){
+  const input = document.getElementById('adminNewEmail');
+  const verifyLinkBtn = document.getElementById('adminEmailVerifyLink');
+  const newEmail = input.value.trim().toLowerCase();
+  const gmailPattern = /^[a-z0-9._%+-]+@gmail\.com$/i;
+  const profile = ensureAdminProfile();
+
+  clearProfileMessage('adminEmailMsg');
+  verifyLinkBtn.style.display = 'none';
+
+  if(!gmailPattern.test(newEmail)){
+    showProfileMessage('adminEmailMsg', 'Faqat to\'g\'ri Gmail manzilini kiriting.', false);
+    return;
+  }
+  if(newEmail === String(profile.email || '').toLowerCase()){
+    showProfileMessage('adminEmailMsg', 'Bu Gmail allaqachon ulangan.', false);
+    return;
+  }
+
+  const token = `adm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const verifyUrl = new URL('admin-login.html', window.location.href);
+  verifyUrl.hash = `admin-email-verify=${token}`;
+
+  localStorage.setItem('sb_admin_pending_email', JSON.stringify({
+    email:newEmail,
+    token,
+    requestedAt:new Date().toISOString()
+  }));
+
+  verifyLinkBtn.href = verifyUrl.href;
+  verifyLinkBtn.style.display = 'inline-flex';
+
+  const subject = encodeURIComponent('SocialBoost UZ Gmail tasdiqlash');
+  const body = encodeURIComponent(`Yangi Gmailni tasdiqlash uchun ushbu havolani oching:\n${verifyUrl.href}`);
+  window.location.href = `mailto:${encodeURIComponent(newEmail)}?subject=${subject}&body=${body}`;
+
+  showProfileMessage('adminEmailMsg', 'Tasdiqlash havolasi tayyorlandi. Gmail ochilmasa, yonidagi tugma orqali havolani oching.', true);
+}
+
+function saveAdminPassword(){
+  const current = document.getElementById('adminCurrentPassword').value;
+  const next = document.getElementById('adminNewPassword').value;
+  const confirm = document.getElementById('adminConfirmPassword').value;
+  const profile = ensureAdminProfile();
+
+  clearProfileMessage('adminPasswordMsg');
+
+  if(current !== profile.password){
+    showProfileMessage('adminPasswordMsg', 'Joriy parol noto\'g\'ri.', false);
+    return;
+  }
+  if(next.length < 8){
+    showProfileMessage('adminPasswordMsg', 'Yangi parol kamida 8 belgidan iborat bo\'lsin.', false);
+    return;
+  }
+  if(next !== confirm){
+    showProfileMessage('adminPasswordMsg', 'Yangi parollar mos emas.', false);
+    return;
+  }
+
+  profile.password = next;
+  localStorage.setItem('sb_admin_profile', JSON.stringify(profile));
+  adminProfile = profile;
+  document.getElementById('adminCurrentPassword').value = '';
+  document.getElementById('adminNewPassword').value = '';
+  document.getElementById('adminConfirmPassword').value = '';
+  showProfileMessage('adminPasswordMsg', 'Parol muvaffaqiyatli yangilandi.', true);
+}
+
+let adminDefaultsReady = false;
+
+function initDefaultsOnce(){
+  if(adminDefaultsReady) return;
+  adminDefaultsReady = true;
+  initDefaults();
+}
+
+function hydrateAdminCache(){
+  try {
+    const cachedPackages = JSON.parse(localStorage.getItem('sb_admin_packages') || '[]').filter(Boolean);
+    if(cachedPackages.length){
+      SBApp.state.packages = cachedPackages.map(pkg => ({
+        ...pkg,
+        id: String(pkg.firestoreId || pkg.id || '')
+      })).filter(pkg => pkg.id);
+    }
+    const cachedCards = JSON.parse(localStorage.getItem('sa_cards') || '[]').filter(Boolean);
+    const fallbackCard = JSON.parse(localStorage.getItem('sb_admin_card') || 'null');
+    const cards = cachedCards.length ? cachedCards : (fallbackCard ? [fallbackCard] : []);
+    if(cards.length){
+      SBApp.state.cards = cards.map(card => ({
+        ...card,
+        id: String(card.firestoreId || card.id || `local_${String(card.number || '').replace(/\s/g,'')}`)
+      }));
+    }
+  } catch (error) {
+    console.warn('Admin cache hydrate failed:', error);
+  }
+}
+
+function getAdminActivePage(){
+  const active = document.querySelector('.page.active');
+  return active?.id?.replace('page-','') || 'dashboard';
+}
+
+function initDefaults(){
+  // Supabasega o'tilgandan keyin bu funksiya kerak emas —
+  // barcha ma'lumotlar endi to'g'ridan-to'g'ri Supabasedan (fetchAll orqali) keladi
+  return;
+}
+
+function removeDemoSeedData(){
+  const demoPackages = [
+    {id:1,platform:'Telegram',name:'Bronza',type:'Obunachi',count:1000,price:50000,reward:5000,tier:'bronze'},
+    {id:2,platform:'Instagram',name:'Kumush',type:'Obunachi + Layk',count:5000,price:220000,reward:18000,tier:'silver'},
+    {id:3,platform:'YouTube',name:'Platina',type:"Ko'rish + Obunachi",count:10000,price:320000,reward:28000,tier:'platinum'},
+  ];
+  const packages = get('packages');
+  const isDemoPackages = packages.length === demoPackages.length && packages.every(pkg =>
+    demoPackages.some(demo =>
+      demo.id === pkg.id &&
+      demo.platform === pkg.platform &&
+      demo.name === pkg.name &&
+      demo.type === pkg.type &&
+      Number(demo.count) === Number(pkg.count) &&
+      Number(demo.price) === Number(pkg.price) &&
+      Number(demo.reward) === Number(pkg.reward) &&
+      demo.tier === pkg.tier
+    )
+  );
+  if(isDemoPackages){
+    set('packages',[]);
+    localStorage.setItem('sb_admin_packages', JSON.stringify([]));
+  }
+
+  const cards = get('cards');
+  const isDemoCard = cards.length === 1 &&
+    cards[0].id === 1 &&
+    cards[0].number === '8600 0000 0000 0001' &&
+    cards[0].holder === 'ADMIN FAMILIYA';
+  if(isDemoCard){
+    set('cards',[]);
+    localStorage.removeItem('sb_admin_card');
+  }
+}
+
+function renderAdminPage(name){
+  switch(name){
+    case 'users': renderUsers(SBApp.state.users || []); break;
+    case 'packages': renderPackages(); break;
+    case 'pricing': renderPricing(); break;
+    case 'cards': renderCards(); break;
+    case 'orders': renderOrders(); break;
+    case 'screenshots': renderScreenshots(); break;
+    case 'withdraws': renderWithdraws(); break;
+    case 'referrals': renderReferralRequests(); break;
+    case 'profile': renderAdminProfile(); break;
+  }
+}
+
+function renderAll(){
+  updateDashboard();
+  renderAdminPage(getAdminActivePage());
+}
+
+// ===== NAVIGATION =====
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('profileShortcut')?.classList.remove('active');
+  document.getElementById('page-'+name).classList.add('active');
+  const map={dashboard:0,users:1,packages:2,pricing:3,cards:4,orders:5,screenshots:6,withdraws:7,referrals:8,flow:9};
+  document.querySelectorAll('.nav-item')[map[name]]?.classList.add('active');
+  if(name==='profile'){
+    document.getElementById('profileShortcut')?.classList.add('active');
+    renderAdminProfile();
+  }
+  if(window.innerWidth<=900) document.getElementById('sidebar').classList.remove('open');
+  updateDashboard();
+  renderAdminPage(name);
+  fixBrokenEmojiText();
+}
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+// ===== USERS =====
+let currentUserTab = 'customer';
+
+function setUserTab(tab){
+  currentUserTab = tab;
+  document.getElementById('userTabCustomer').className = `btn ${tab==='customer'?'btn-accent':'btn-outline'} btn-sm`;
+  document.getElementById('userTabWorker').className = `btn ${tab==='worker'?'btn-accent':'btn-outline'} btn-sm`;
+  document.getElementById('userTableTitle').textContent = tab==='customer' ? 'Buyurtmachilar ro\'yxati' : 'Ish bajaruvchilar ro\'yxati';
+  renderUsers(SBApp.state.users || []);
+}
+
+function formatRegDate(val){
+  if(!val) return '—';
+  let d;
+  if(val && val.toDate) d = val.toDate();
+  else d = new Date(val);
+  if(isNaN(d)) return '—';
+  const day = String(d.getDate()).padStart(2,'0');
+  const month = String(d.getMonth()+1).padStart(2,'0');
+  const year = d.getFullYear();
+  const hour = String(d.getHours()).padStart(2,'0');
+  const min = String(d.getMinutes()).padStart(2,'0');
+  return `${day}.${month}.${year} ${hour}:${min}`;
+}
+
+function isDemoUser(u){
+  const name = (u.name||'').toLowerCase().trim();
+  const login = (u.login||'').toLowerCase().trim();
+  const email = (u.email||'').toLowerCase().trim();
+  return name==='test'||login==='test'||name.startsWith('test ')||login.startsWith('test')||email.startsWith('test@')||email.startsWith('demo@')||(u._isDemo===true);
+}
+
+function renderUsers(users){
+  // Demo foydalanuvchilarni filterlash
+  const filtered = users.filter(u=>!isDemoUser(u));
+  const tabFiltered = filtered.filter(u=>{
+    const role = (u.role||'customer').toLowerCase();
+    if(currentUserTab==='worker') return role==='worker'||role==='ish_bajaruvchi';
+    return role!=='worker'&&role!=='ish_bajaruvchi'&&role!=='admin';
+  });
+  document.getElementById('userCount').textContent = tabFiltered.length+' ta';
+  const tb = document.getElementById('usersTable');
+  if(!tabFiltered.length){
+    tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-icon"><svg width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><h4>${currentUserTab==='worker'?'Ish bajaruvchi yo\'q':'Buyurtmachi yo\'q'}</h4></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = tabFiltered.map((u,i)=>`
+    <tr>
+      <td class="td-muted">${i+1}</td>
+      <td class="td-name">${SBApp.escapeHtml(u.name||'—')}</td>
+      <td><code style="background:var(--surface2);padding:2px 8px;border-radius:5px;font-size:14px">${SBApp.escapeHtml(u.login||'—')}</code></td>
+      <td><code style="background:var(--surface2);padding:2px 8px;border-radius:5px;font-size:14px">${SBApp.escapeHtml(u.userId||u.customerId||u.workerId||'—')}</code></td>
+      <td class="td-muted">${SBApp.escapeHtml(u.phone||'—')}</td>
+      <td class="td-muted" style="font-size:13px">${SBApp.escapeHtml(u.email||'—')}</td>
+      <td><span class="badge ${u.status==='blocked'?'b-blocked':'b-active'}">${u.status==='blocked'?'🚫 Bloklangan':'✓ Faol'}</span></td>
+      <td class="td-muted" style="font-size:13px">${formatRegDate(u.createdAt)}</td>
+      <td>
+        <div class="action-btns">
+          ${u.status==='blocked'
+            ? `<button class="act-btn act-approve" title="Blokdan chiqarish" onclick="unblockUser('${u.id||u.uid}')">✓ Ochish</button>`
+            : `<button class="act-btn act-block" title="Bloklash" onclick="blockUser('${u.id||u.uid}')" style="font-size:17px;padding:4px 10px">🚫</button>`
+          }
+          <button class="act-btn act-delete" title="O'chirish" onclick="deleteUser('${u.id||u.uid}')">
+            <svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterUsers(q){
+  const all = SBApp.state.users || [];
+  const searched = q ? all.filter(u=>(u.name||'').toLowerCase().includes(q.toLowerCase())||(u.login||'').toLowerCase().includes(q.toLowerCase())||(u.userId||'').toLowerCase().includes(q.toLowerCase())||(u.email||'').toLowerCase().includes(q.toLowerCase())) : all;
+  renderUsers(searched);
+}
+
+function blockUser(uid){
+  showConfirm('🚫','Foydalanuvchini bloklash',"Bu foydalanuvchini bloklashni xohlaysizmi? Uning balansi muzlatiladi va saytga kirish taqiqlanadi.",async ()=>{
+    try{
+      await sb.from('users').update({status:'blocked', blocked_at: new Date().toISOString(), balance_frozen: true}).eq('id', String(uid));
+    }catch(e){ console.warn('Block error:',e); }
+  });
+}
+
+function unblockUser(uid){
+  showConfirm('✓','Blokdan chiqarish',"Bu foydalanuvchini blokdan chiqarishni xohlaysizmi?",async ()=>{
+    try{
+      await sb.from('users').update({status:'active', blocked_at: null, balance_frozen: false}).eq('id', String(uid));
+    }catch(e){ console.warn('Unblock error:',e); }
+  });
+}
+
+function deleteUser(uid){
+  showConfirm('🗑️','Foydalanuvchini butunlay o\'chirish',"Bu foydalanuvchi BUTUNLAY o'chiriladi! Uning Gmail manzili orqali saytga kirmoqchi bo'lsa 'Ushbu sayt mavjud emas' xabari ko'rinadi. Bu amalni ortga qaytarib bo'lmaydi!",async ()=>{
+    try{
+      const user = (SBApp.state.users||[]).find(u=>(u.id)===String(uid));
+      // Blocklist ga qo'shish (Gmail bilan login qilishni bloklash uchun)
+      if(user && user.email){
+        await sb.from('blocklist').upsert({
+          email_key: user.email.toLowerCase().replace(/[@.]/g,'_'),
+          email: user.email,
+          deleted_at: new Date().toISOString(),
+          reason: 'deleted_by_admin'
+        });
+      }
+      // users jadvalidan o'chirish
+      await sb.from('users').delete().eq('id', String(uid));
+    }catch(e){ console.warn('Delete user error:',e); }
+  });
+}
+
+// ===== PACKAGES =====
+const PLATFORM_ICONS = {Telegram:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>`,Instagram:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>`,YouTube:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 16 12 10 15 10 9"/></svg>`,TikTok:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`};
+const TIER_LABELS = {bronze:'Bronza',silver:'Kumush',platinum:'Platina',custom:'Maxsus'};
+
+function renderPackages(){
+  const pkgs = SBApp.state.packages || [];
+  document.getElementById('pkgCount').textContent = pkgs.length+' ta';
+  const tb = document.getElementById('pkgsTable');
+  if(!tb) return;
+  
+  if(!pkgs.length){ 
+    tb.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><h4>Paketlar hali mavjud emas</h4><p>Yangi paket qo'shish tugmasini bosing</p></div></td></tr>`; 
+    return; 
+  }
+  
+  // TR tegiga id="pkg-row-${p.id}" qo'shildi, toki DOMdan osongina o'chirish mumkin bo'lsin
+  tb.innerHTML = pkgs.map((p,i)=>`
+    <tr id="pkg-row-${p.id}">
+      <td class="td-muted">${i+1}</td>
+      <td>${SBApp.iconMap[p.platform]||''} ${SBApp.escapeHtml(p.platform)}</td>
+      <td class="td-name">${SBApp.escapeHtml(p.name)}</td>
+      <td>${SBApp.escapeHtml(p.type)} ${p.note ? `<br><small style="color:var(--accent)">${SBApp.escapeHtml(p.note)}</small>` : ''}</td>
+      <td>${SBApp.number(p.count).toLocaleString()} ta</td>
+      <td style="color:var(--accent);font-weight:700">${SBApp.formatPrice(p.price)}</td>
+      <td><strong style="color:var(--green)">${SBApp.formatPrice(p.reward)}</strong></td>
+      <td><span class="badge b-active">Faol</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="act-btn act-edit" onclick="openPkgModal('${p.id}')">Tahrirlash</button>
+          <button class="act-btn act-delete" onclick="deletePkg('${p.id}')">O'chirish</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openPkgModal(id){
+  editPkgId = id || null;
+  document.getElementById('pkgErr').style.display='none';
+  if(id){
+    const p = (SBApp.state.packages || []).find(item=>item.id===id);
+    if(!p) return;
+    document.getElementById('pkgModalTitle').textContent = 'Paketni tahrirlash';
+    document.getElementById('pkgPlatform').value=p.platform;
+    document.getElementById('pkgTier').value=p.tier || 'custom';
+    document.getElementById('pkgType').value=p.type || '';
+    document.getElementById('pkgAmount').value=p.count || '';
+    document.getElementById('pkgPrice').value=p.price || '';
+    document.getElementById('pkgWorkerPay').value=p.reward || '';
+    document.getElementById('pkgNote').value=p.note || ''; // Izoh yuklanadi
+  }else{
+    document.getElementById('pkgModalTitle').textContent = 'Yangi paket';
+    document.getElementById('pkgPlatform').value='Telegram';
+    document.getElementById('pkgTier').value='bronze';
+    ['pkgType','pkgAmount','pkgPrice','pkgWorkerPay','pkgNote'].forEach(id=>document.getElementById(id).value='');
+  }
+  openModal('pkgModal');
+}
+
+async function savePkg(){
+  const platform=document.getElementById('pkgPlatform').value;
+  const tier=document.getElementById('pkgTier').value;
+  const type=document.getElementById('pkgType').value.trim();
+  const count=Number(document.getElementById('pkgAmount').value);
+  const price=Number(document.getElementById('pkgPrice').value);
+  const reward=Number(document.getElementById('pkgWorkerPay').value);
+  const note=document.getElementById('pkgNote').value.trim();
+
+  if(!type||!count||!price||!reward){ document.getElementById('pkgErr').style.display='block'; return; }
+
+  const tierLabel = {bronze:'Bronza',silver:'Kumush',platinum:'Platina',custom:'Maxsus'};
+  const payload = {
+    platforma: platform,
+    xizmat_turi: type,
+    narx: price,
+    ball: reward,        // mavjud baza bilan moslik: bir workerga to'lanadigan summa (so'm)
+    soni: count,          // nechta worker kerak (buyurtma soni)
+    tavsif: note || tierLabel[tier] || ''
+  };
+
+  try{
+    let result;
+    if(editPkgId){
+      result = await sb.from('paketlar').update(payload).eq('id', editPkgId);
+    } else {
+      result = await sb.from('paketlar').insert(payload);
+    }
+    if(result.error) throw result.error;
+    closeModal('pkgModal');
+    // Darhol ro'yxatni yangilash (15 soniyalik avtomatik yangilanishni kutmasdan)
+    const {data: freshPkgs} = await sb.from('paketlar').select('*');
+    SBApp.state.packages = (freshPkgs||[]).map(p=>({...p, name:p.xizmat_turi, platform:p.platforma, type:p.xizmat_turi, count:p.soni, price:p.narx, reward:p.ball}));
+    renderPackages();
+    updateDashboard();
+  }catch(error){
+    alert('Paket saqlashda xatolik: ' + (error.message||JSON.stringify(error)));
+  }
+}
+
+function deletePkg(id) {
+  if (!id) { alert("Paket ID si noto'g'ri."); return; }
+
+  const trashIcon = `<svg width="44" height="44" fill="none" stroke="var(--red)" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+
+  showConfirm(
+    trashIcon,
+    "Paketni o'chirish",
+    "Bu paketni butunlay o'chirishni xohlaysizmi? Bu amalni ortga qaytarib bo'lmaydi!",
+    async () => {
+      try {
+        await sb.from('buyurtmalar').delete().eq('paket_id', String(id));
+        await sb.from('paketlar').delete().eq('id', String(id));
+        const removeFromCache = (key) => {
+          const items = JSON.parse(localStorage.getItem(key) || '[]').filter(pkg => String(pkg.id || pkg.firestoreId) !== String(id));
+          localStorage.setItem(key, JSON.stringify(items));
+        };
+        removeFromCache('sa_packages');
+        removeFromCache('sb_admin_packages');
+        Object.keys(localStorage).forEach(key => {
+          if(!key.startsWith('sb_orders_')) return;
+          const orders = JSON.parse(localStorage.getItem(key) || '[]')
+            .filter(order => String(order.packageId || order.paket_id) !== String(id));
+          localStorage.setItem(key, JSON.stringify(orders));
+        });
+        SBApp.state.packages = (SBApp.state.packages || []).filter(pkg => String(pkg.id) !== String(id));
+      } catch (error) {
+        console.warn("Paket o'chirishda xatolik:", error.message);
+      }
+      renderPackages();
+      updateDashboard();
+    }
+  );
+}
+
+// ===== PRICING =====
+const SERVICES = [
+  {key:'subscriber',label:'Obunachi',icon:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, terms:['obunachi']},
+  {key:'like',label:'Layk',icon:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, terms:['layk']},
+  {key:'view',label:"Ko'rish",icon:'<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>', terms:["ko'rish",'korish']},
+  {key:'comment',label:'Izohlar',icon:`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, terms:['izoh']},
+];
+const PRICING_PLATFORMS = ['Telegram','Instagram','YouTube','TikTok'];
+
+function getPricingData(){
+  return getObj('pricing',{});
+}
+
+function getPricingInputId(prefix, serviceKey, platform){
+  return `${prefix}_${serviceKey}_${platform}`;
+}
+
+function extractServiceKeys(type=''){
+  const normalized = (type || '').toLowerCase();
+  return SERVICES.filter(service => service.terms.some(term => normalized.includes(term))).map(service => service.key);
+}
+
+function calculateFromPricing(platform, type, count){
+  const pricing = getPricingData();
+  const factor = Math.max((Number(count) || 0) / 1000, 0);
+  const serviceKeys = extractServiceKeys(type);
+  let price = 0;
+  let points = 0;
+
+  serviceKeys.forEach(key => {
+    const row = pricing[key]?.[platform] || {};
+    price += Math.round((Number(row.price) || 0) * factor);
+    points += Math.round((Number(row.ball) || 0) * factor);
+  });
+
+  return { price, points };
+}
+
+function renderPricing(){
+  const pricing = getPricingData();
+  const grid = document.getElementById('pricingGrid');
+  if(!grid) return;
+  grid.innerHTML = SERVICES.map(service => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px">
+      <div style="font-size:26px;margin-bottom:10px">${service.icon}</div>
+      <div style="font-family:Calibri, Arial, sans-serif;font-weight:700;font-size:16px;margin-bottom:16px">${service.label}</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr><th>Tarmoq</th><th>Narx (1000 ta)</th><th>Worker to'lovi (so'm)</th></tr>
+          </thead>
+          <tbody>
+            ${PRICING_PLATFORMS.map(platform => `
+              <tr>
+                <td>${PLATFORM_ICONS[platform] || ''} ${platform}</td>
+                <td><input type="number" class="form-input" id="${getPricingInputId('price', service.key, platform)}" value="${pricing[service.key]?.[platform]?.price || ''}" placeholder="50000"></td>
+                <td><input type="number" class="form-input" id="${getPricingInputId('ball', service.key, platform)}" value="${pricing[service.key]?.[platform]?.ball || ''}" placeholder="5000"></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-accent btn-full" style="margin-top:16px" onclick="savePricing('${service.key}')">Saqlash</button>
+    </div>
+  `).join('');
+}
+
+function savePricing(key){
+  const pricing = getPricingData();
+  pricing[key] = pricing[key] || {};
+
+  PRICING_PLATFORMS.forEach(platform => {
+    pricing[key][platform] = {
+      price: parseInt(document.getElementById(getPricingInputId('price', key, platform)).value) || 0,
+      ball: parseInt(document.getElementById(getPricingInputId('ball', key, platform)).value) || 0
+    };
+  });
+
+  localStorage.setItem('sa_pricing', JSON.stringify(pricing));
+  alert('? Saqlandi!');
+}
+
+// ===== CARDS =====
+function openCardModal(){ editCardId=null; document.getElementById('cardModalTitle').innerHTML=`<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Karta qo'shish`; document.getElementById('cardErr').style.display='none'; ['cardNum','cardHolder','cardBank'].forEach(id=>document.getElementById(id).value=''); openModal('cardModal'); }
+function fmtCard(inp){ let v=inp.value.replace(/\D/g,'').substring(0,16); inp.value=v.replace(/(.{4})/g,'$1 ').trim(); }
+
+// ===== ORDERS =====
+const ORDER_STATUS = {
+  pending_payment:{l:"To'lov kutilmoqda",c:'b-pending'},
+  waiting_admin:{l:'Admin tekshirmoqda',c:'b-review'},
+  active:{l:'<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Faol',c:'b-done'},
+  pending_review:{l:"Ko'rib chiqilmoqda",c:'b-review'},
+  done:{l:'? Bajarildi',c:'b-done'},
+  rejected:{l:'<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Rad etildi',c:'b-rejected'},
+};
+function changeOrderStatus(id){
+  currentOrderId=id;
+  const o=(SBApp.state.orders||[]).find(x=>String(x.id)===String(id));
+  const statusMap = {waiting_admin:'pending', active:'active', done:'completed', rejected:'rejected'};
+  if(o) document.getElementById('newOrderStatus').value = o.status || 'waiting_admin';
+  openModal('orderStatusModal');
+}
+async function saveOrderStatus(){
+  const o=(SBApp.state.orders||[]).find(x=>String(x.id)===String(currentOrderId));
+  const newStatus = document.getElementById('newOrderStatus').value;
+  const statusMap = {waiting_admin:'pending', active:'active', done:'completed', rejected:'rejected'};
+  if(o){
+    try{
+      await sb.from('buyurtmalar').update({ holat: statusMap[newStatus] || 'pending' }).eq('id', String(o.id));
+    }catch(e){ console.warn('Order status update error:', e); }
+  }
+  closeModal('orderStatusModal'); renderOrders(); updateDashboard();
+}
+
+function syncOrderToCustomer(order){
+  // Supabasega o'tilgandan keyin kerak emas — buyurtmalar real vaqtda sb dan o'qiladi
+  return;
+}
+
+// ===== SCREENSHOTS =====
+function approveSSByIdx(i, workerKey, ssIdx){
+  if(workerKey){
+    const done=JSON.parse(localStorage.getItem(workerKey)||'[]');
+    if(done[ssIdx]){
+      // Ikki marta tasdiqlashdan himoya: allaqachon approved bo'lsa o'tkazib yuboramiz
+      if(done[ssIdx].status === 'approved'){
+        alert('Bu screenshot allaqachon tasdiqlangan!');
+        return;
+      }
+      awardWorkerPoints(done[ssIdx]);
+      done[ssIdx].status='approved';
+      syncOrderFromWorkerDone(done[ssIdx], 'done');
+      localStorage.setItem(workerKey,JSON.stringify(done));
+    }
+  }
+  renderScreenshots(); updateDashboard();
+}
+function rejectSSByIdx(i, workerKey, ssIdx){
+  if(workerKey){
+    const done=JSON.parse(localStorage.getItem(workerKey)||'[]');
+    if(done[ssIdx]){ done[ssIdx].status='rejected'; syncOrderFromWorkerDone(done[ssIdx], 'active'); localStorage.setItem(workerKey,JSON.stringify(done)); }
+  }
+  renderScreenshots(); updateDashboard();
+}
+function approveScreenshot(){ if(currentSSIdx) handleApproveScreenshot(currentSSIdx); closeModal('ssViewModal'); }
+function rejectScreenshot(){ if(currentSSIdx) rejectScreenshotDoc(currentSSIdx); closeModal('ssViewModal'); }
+
+function syncOrderFromWorkerDone(doneOrder, statusHint){
+  if(!doneOrder || doneOrder.id === undefined) return;
+  const orders = get('orders');
+  const order = orders.find(item=>String(item.id)===String(doneOrder.id));
+  if(!order) return;
+
+  const needed = Number(order.neededWorkers || order.count) || 0;
+
+  if(statusHint === 'done') {
+    // Tasdiqlangan: acceptedWorkers ni oshir
+    order.acceptedWorkers = (Number(order.acceptedWorkers) || 0) + 1;
+    // Faqat HAMMASI tasdiqlanganida done ga o'tkazish
+    if(needed > 0 && order.acceptedWorkers >= needed) {
+      order.status = 'done';
+      order.updatedAt = new Date().toISOString();
+      sb.from('buyurtmalar').update({
+        holat: 'completed',
+        accepted_workers: order.acceptedWorkers
+      }).eq('id', String(order.id)).then(()=>{}).catch(()=>{});
+    } else {
+      // Hali tugalamagan — active da qolsin
+      order.status = 'active';
+      sb.from('buyurtmalar').update({
+        accepted_workers: order.acceptedWorkers,
+        holat: 'active'
+      }).eq('id', String(order.id)).then(()=>{}).catch(()=>{});
+    }
+  } else {
+    // Rad etildi: acceptedWorkers ni kamaytir, active da qolsin
+    order.acceptedWorkers = Math.max(0, (Number(order.acceptedWorkers) || 0) - 1);
+    order.status = 'active';
+    sb.from('buyurtmalar').update({
+      accepted_workers: order.acceptedWorkers,
+      holat: 'active'
+    }).eq('id', String(order.id)).then(()=>{}).catch(()=>{});
+  }
+
+  if(doneOrder.workerLogin) order.workerLogin = doneOrder.workerLogin;
+  if(doneOrder.workerName) order.workerName = doneOrder.workerName;
+  set('orders', orders);
+  syncOrderToCustomer(order);
+}
+
+function awardWorkerPoints(doneOrder){
+  if(!doneOrder?.workerLogin || doneOrder.pointsPaid) return;
+  const prefix = 'sbw_' + doneOrder.workerLogin + '_';
+  const points = Number(doneOrder.points || doneOrder.rewardNum || 0);
+  if(!points) return;
+  const balanceKey = prefix + 'balance_n';
+  const historyKey = prefix + 'balance_history';
+  const balance = parseInt(localStorage.getItem(balanceKey) || '0');
+  const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+  history.push({
+    type:'earn',
+    desc:(doneOrder.platform || 'Buyurtma') + ' — ' + (doneOrder.type || doneOrder.pkgName || ''),
+    amount:points,
+    date:new Date().toISOString()
+  });
+  localStorage.setItem(balanceKey, String(balance + points));
+  localStorage.setItem(historyKey, JSON.stringify(history));
+  doneOrder.pointsPaid = true;
+}
+
+// ===== WITHDRAWS =====
+function renderWithdraws(){
+  const wds = SBApp.state.withdraws || [];
+  document.getElementById('wdBadge').textContent = wds.filter(w=>w.status==='pending').length;
+  const tb = document.getElementById('withdrawsTable');
+  if(!wds.length){ tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><h4>Hali so'rov yo'q</h4></div></td></tr>`; return; }
+  tb.innerHTML = wds.map((w,i)=>`
+    <tr>
+      <td class="td-muted">${i+1}</td>
+      <td class="td-name">${SBApp.escapeHtml(w.worker_name||'Worker')}</td>
+      <td><code style="background:var(--surface2);padding:2px 8px;border-radius:5px;font-size:16px">${SBApp.escapeHtml(w.card_number||'—')}</code></td>
+      <td>${SBApp.escapeHtml(w.card_holder||'—')}</td>
+      <td style="font-family:Calibri, Arial, sans-serif;font-weight:700;color:var(--accent)">${Number(w.amount||0).toLocaleString()} so'm</td>
+      <td><span class="badge ${w.status==='pending'?'b-pending':w.status==='approved'?'b-done':'b-rejected'}">${w.status==='pending'?'<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> Kutilmoqda':w.status==='approved'?'<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Tasdiqlandi':'<svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Rad etildi'}</span></td>
+      <td class="td-muted">${w.created_at?new Date(w.created_at).toLocaleDateString('uz'):'—'}</td>
+      <td>
+        ${w.status==='pending'?`
+        <div class="action-btns">
+          <button class="act-btn act-approve" onclick="approveWd('${w.id}')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Tasdiqlash</button>
+          <button class="act-btn act-reject" onclick="rejectWd('${w.id}')"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Rad</button>
+        </div>`:`<span style="color:var(--muted);font-size:16px">Tugallangan</span>`}
+      </td>
+    </tr>
+  `).join('');
+}
+async function approveWd(id){
+  try{
+    await sb.from('withdraws').update({status:'approved', processed_at: new Date().toISOString()}).eq('id', id);
+  }catch(e){ alert('Xatolik: '+(e.message||e)); }
+}
+async function rejectWd(id){
+  try{
+    const wd = (SBApp.state.withdraws||[]).find(w=>w.id===id);
+    await sb.from('withdraws').update({status:'rejected', processed_at: new Date().toISOString()}).eq('id', id);
+    // Pulni qaytarish (chunki so'rov rad etildi)
+    if(wd && wd.worker_id){
+      const {data: worker} = await sb.from('users').select('balans').eq('id', wd.worker_id).single();
+      await sb.from('users').update({balans: (worker?.balans||0) + Number(wd.amount||0)}).eq('id', wd.worker_id);
+    }
+  }catch(e){ alert('Xatolik: '+(e.message||e)); }
+}
+
+// ===== CONFIRM =====
+function showConfirm(icon,title,text,callback){
+  const iconEl = document.getElementById('confirmIcon');
+  if(icon && String(icon).includes('<')) iconEl.innerHTML = icon;
+  else iconEl.textContent = icon || '';
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmText').textContent=text;
+  pendingConfirm=callback;
+  openModal('confirmModal');
+}
+function confirmAction(){ if(pendingConfirm){ pendingConfirm(); pendingConfirm=null; } closeModal('confirmModal'); }
+
+// ===== UTILS =====
+function openModal(id){ document.getElementById(id).classList.add('show'); fixBrokenEmojiText(document.getElementById(id)); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function lockPanel(){
+  clearAuthStorage();
+  sb.auth.signOut().finally(()=>{ window.location.href='admin-login.html'; });
+}
+function logout(){
+  clearAuthStorage();
+  sb.auth.signOut().finally(()=>{ window.location.href='admin-login.html'; });
+}
+function clearAuthStorage(){
+  sessionStorage.removeItem('sb_admin_auth');
+  sessionStorage.removeItem('sb_superadmin_preview');
+  localStorage.removeItem('sb_current_user');
+  localStorage.removeItem('sb_current_worker');
+}
+function openSuperadminPreview(event, role){
+  event.preventDefault();
+  sessionStorage.setItem('sb_superadmin_preview', role);
+  const target = role === 'worker'
+    ? 'worker.html?superadmin_preview=worker'
+    : 'dashboard.html?superadmin_preview=customer';
+  window.location.href = target;
+}
+
+let screenshotTab = 'customer';
+
+// ===== ADMIN AUTH =====
+(async function initAdmin(){
+  // sessionStorage tekshiruv (superadmin login bo'lgan)
+  if(sessionStorage.getItem('sb_admin_auth') !== '1'){
+    window.location.href = 'admin-login.html'; return;
+  }
+  ensureAdminProfile();
+  hydrateAdminCache();
+  initDefaultsOnce();
+  renderAdminProfile();
+  updateDashboard();
+  renderAdminPage(getAdminActivePage());
+  fixBrokenEmojiText();
+  startAdminRealtime();
+})();
+
+function startAdminRealtime(){
+  SBApp.cleanupListeners();
+
+  async function fetchAll(){
+    // Muddati o'tgan to'lov qilinmagan buyurtmalarni tozalash
+    await SBApp.cleanupExpiredOrders();
+
+    // Foydalanuvchilar
+    const {data: users} = await sb.from('users').select('*').neq('rol','admin');
+    SBApp.state.users = (users||[]).map(u=>({...u, name:u.ism, role:u.rol, userId:u.user_id, customerId:u.customer_id}));
+
+    // To'lov kartalari (Supabase settings)
+    try{
+      const {data: cardSetting} = await sb.from('settings').select('value').eq('key','payment_cards').single();
+      if(cardSetting?.value){
+        const cards = JSON.parse(cardSetting.value);
+        localStorage.setItem('sa_cards', JSON.stringify(cards));
+      }
+    }catch(e){ /* settings hali yo'q bo'lishi mumkin, xavfsiz */ }
+
+    // Paketlar
+    const {data: pkgs} = await sb.from('paketlar').select('*');
+    SBApp.state.packages = (pkgs||[]).map(p=>({...p, name:p.xizmat_turi, platform:p.platforma, type:p.xizmat_turi, count:p.soni, price:p.narx, reward:p.ball}));
+    localStorage.setItem('sb_admin_packages', JSON.stringify(SBApp.state.packages));
+    localStorage.setItem('sa_packages', JSON.stringify(SBApp.state.packages));
+
+    // Buyurtmalar (oddiy so'rov, JOIN siz)
+    const {data: ordersRaw, error: ordersErr} = await sb.from('buyurtmalar').select('*');
+    if(ordersErr) console.warn('buyurtmalar so\'rovida xato:', ordersErr);
+    let ordersList = ordersRaw || [];
+    const userById = {};
+    (SBApp.state.users||[]).forEach(u=>{ userById[u.id]=u; });
+    const pkgById = {};
+    (SBApp.state.packages||[]).forEach(p=>{ pkgById[p.id]=p; });
+    ordersList = ordersList.filter(o => pkgById[o.paket_id]);
+
+    SBApp.state.orders = ordersList.map(o=>{
+      const u = userById[o.customer_id] || {};
+      const pkg = pkgById[o.paket_id] || {};
+      return {
+        ...o, id:o.id,
+        customerName: u.ism||'',
+        customerLogin: u.login||'',
+        customerId: u.user_id||'',
+        pkgName: pkg.xizmat_turi||'',
+        platform: pkg.platforma||'',
+        type: pkg.xizmat_turi||'',
+        count: pkg.soni||1,
+        neededWorkers: o.needed_workers||1,
+        acceptedWorkers: o.accepted_workers||0,
+        price: pkg.narx||0,
+        link: o.havola,
+        status: o.holat==='pending'?'waiting_admin': o.holat==='active'?'active': o.holat==='completed'?'done': o.holat,
+        createdAt: o.created_at
+      };
+    });
+    const orderById = {};
+    ordersList.forEach(o=>{ orderById[o.id]=o; });
+
+    // Cheklar (screenshots) — oddiy so'rov, JOIN siz
+    const {data: cheklarRaw, error: cheklarErr} = await sb.from('cheklar').select('*');
+    if(cheklarErr) console.warn('cheklar so\'rovida xato:', cheklarErr);
+    SBApp.state.screenshots = (cheklarRaw||[]).map(c=>{
+      const o = orderById[c.buyurtma_id] || {};
+      const pkg = pkgById[o.paket_id] || {};
+      const u = userById[o.customer_id] || {};
+      return {
+        ...c, id:c.id,
+        kind:'customer',
+        orderId: c.buyurtma_id,
+        screenshotUrl: c.rasm_url,
+        status: c.holat==='kutilmoqda'?'pending_review': c.holat==='tasdiqlandi'?'approved':'rejected',
+        platform: pkg.platforma||'',
+        pkgName: pkg.xizmat_turi||'',
+        customerId: u.user_id||'',
+        customerName: u.ism||'',
+        createdAt: c.created_at
+      };
+    });
+
+    // Worker screenshotlar (bajarilgan ishlar) — oddiy so'rov, JOIN siz
+    const {data: workerSSRaw, error: workerSSErr} = await sb.from('bajarilgan_ishlar').select('*');
+    if(workerSSErr) console.warn('bajarilgan_ishlar so\'rovida xato:', workerSSErr);
+    const workerScreenshots = (workerSSRaw||[]).filter(s=>s.screenshot_url).map(s=>{
+      const o = orderById[s.buyurtma_id] || {};
+      const pkg = pkgById[o.paket_id] || {};
+      const w = userById[s.worker_id] || {};
+      return {
+        ...s, id:s.id,
+        kind:'worker',
+        orderId: s.buyurtma_id,
+        screenshotUrl: s.screenshot_url,
+        status: s.holat==='kutilmoqda'?'pending_review': s.holat==='tasdiqlandi'?'approved':'rejected',
+        platform: pkg.platforma||'',
+        pkgName: pkg.xizmat_turi||'',
+        reward: pkg.ball||0,
+        workerUid: s.worker_id,
+        workerUserId: w.user_id||'',
+        workerName: w.ism||'',
+        createdAt: s.created_at
+      };
+    });
+    SBApp.state.screenshots = [...SBApp.state.screenshots, ...workerScreenshots];
+
+    // Pul yechish so'rovlari
+    const {data: withdraws} = await sb.from('withdraws').select('*').order('created_at', {ascending:false});
+    SBApp.state.withdraws = withdraws || [];
+
+    // Referal so'rovlar
+    const {data: refs} = await sb.from('referral_requests').select('*').order('created_at', {ascending:false});
+    SBApp.state.referralRequests = (refs||[]).map(r=>({
+      ...r, id:r.id,
+      referrerName: r.referrer_name,
+      referrerUserId: r.referrer_user_id,
+      referrerUid: r.referrer_uid,
+      referredName: r.referred_name,
+      referredUserId: r.referred_user_id,
+      referredUid: r.referred_uid,
+      ordersCompleted: r.orders_completed,
+      bonusGiven: r.bonus_given,
+      createdAt: r.created_at
+    }));
+
+    renderAll();
+    updateDashboard();
+  }
+
+  fetchAll();
+  const interval = setInterval(fetchAll, 15000);
+  SBApp._intervals.push(interval);
+}
+
+async function migrateLegacyAdminData(){
+  // Supabasega o'tilgandan keyin bu funksiya kerak emas
+  return;
+}
+
+function updateDashboard(){
+  const users = SBApp.state.users || [];
+  const orders = SBApp.state.orders || [];
+  const pkgs = SBApp.state.packages || [];
+  const allScreenshots = SBApp.state.screenshots || [];
+  const notifications = (SBApp.state.notifications || []).slice().sort((a,b)=>SBApp.toMillis(b.createdAt)-SBApp.toMillis(a.createdAt));
+  const pendingScreenshots = allScreenshots.filter(s=>s.status==='pending_review').length;
+  document.getElementById('ds-users').textContent = users.length;
+  document.getElementById('ds-orders').textContent = orders.length;
+  document.getElementById('ds-pending').textContent = orders.filter(o=>o.status==='waiting_admin').length;
+  document.getElementById('ds-ss').textContent = pendingScreenshots;
+  document.getElementById('ds-wd').textContent = (SBApp.state.withdraws||[]).filter(w=>w.status==='pending').length;
+  document.getElementById('ds-pkgs').textContent = pkgs.length;
+  document.getElementById('ssBadge').textContent = pendingScreenshots;
+  // Referal so'rovlar badge yangilash
+  const pendingRefs = (SBApp.state.referralRequests || []).filter(r => r.status === 'pending').length;
+  const refBadge = document.getElementById('refReqBadge');
+  if(refBadge){ refBadge.textContent = pendingRefs; refBadge.style.display = pendingRefs > 0 ? 'inline' : 'none'; }
+  const dsRefs = document.getElementById('ds-refs');
+  if(dsRefs) dsRefs.textContent = pendingRefs;
+  renderRecentActivity(notifications);
+}
+
+function renderRecentActivity(notifications = SBApp.state.notifications || []){
+  const el = document.getElementById('recentActivity');
+  if(!el) return;
+  const rows = notifications.slice().sort((a,b)=>SBApp.toMillis(b.createdAt)-SBApp.toMillis(a.createdAt)).slice(0, 6);
+  if(!rows.length){
+    el.innerHTML = `<div style="color:var(--muted);font-size:16px;text-align:center;padding:20px">Hali faoliyat yo'q</div>`;
+    return;
+  }
+  el.innerHTML = rows.map(n=>`
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:4px">
+        <div style="font-weight:700">${SBApp.escapeHtml(n.title || 'Bildirishnoma')}</div>
+        <div style="font-size:13px;color:var(--muted);white-space:nowrap">${SBApp.formatDate(n.createdAt)}</div>
+      </div>
+      <div style="font-size:15px;color:var(--muted);line-height:1.4">${SBApp.escapeHtml(n.message || '')}</div>
+    </div>
+  `).join('');
+}
+
+function renderCards(){
+  const cards = SBApp.state.cards || [];
+  const el = document.getElementById('cardsList');
+  if(!cards.length){ el.innerHTML=`<div class="empty"><div class="empty-icon">CARD</div><h4>Karta yo'q</h4><p>Yangi karta qo'shing</p></div>`; return; }
+  el.innerHTML = cards.map(c=>`
+    <div class="card-item">
+      <div><div class="card-num">${SBApp.escapeHtml(c.number)}</div><div class="card-holder">${SBApp.escapeHtml(c.holder)} · ${SBApp.escapeHtml(c.bank||'')}</div></div>
+      <div class="action-btns"><button class="act-btn act-edit" onclick="editCard('${c.id}')">Tahrirlash</button><button class="act-btn act-delete" onclick="deleteCard('${c.id}')">O'chirish</button></div>
+    </div>
+  `).join('');
+}
+
+function editCard(id){
+  editCardId=id;
+  const c=(SBApp.state.cards || []).find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('cardModalTitle').textContent='Kartani tahrirlash';
+  document.getElementById('cardNum').value=c.number || '';
+  document.getElementById('cardHolder').value=c.holder || '';
+  document.getElementById('cardBank').value=c.bank || '';
+  document.getElementById('cardErr').style.display='none';
+  openModal('cardModal');
+}
+
+async function saveCard(){
+  const number=document.getElementById('cardNum').value.trim();
+  const holder=document.getElementById('cardHolder').value.trim();
+  const bank=document.getElementById('cardBank').value.trim();
+  if(!number||!holder){ document.getElementById('cardErr').style.display='block'; return; }
+  const localCards = get('cards');
+  const localCard = {number,holder,bank};
+  const idx = localCards.findIndex(item => String(item.id) === String(editCardId) || String(item.number || '').replace(/\s/g,'') === String(number).replace(/\s/g,''));
+  if(idx > -1) localCards[idx] = {...localCards[idx], ...localCard};
+  else localCards.push({...localCard, id:Date.now()});
+  set('cards', localCards);
+  localStorage.setItem('sa_cards', JSON.stringify(localCards));
+  localStorage.setItem('sb_admin_card', JSON.stringify({number,holder}));
+  try{
+    await sb.from('settings').upsert({ key: 'payment_cards', value: JSON.stringify(localCards) });
+  }catch(e){ console.warn('Karta Supabasega saqlanmadi:', e); }
+  closeModal('cardModal');
+}
+
+function deleteCard(id){
+  showConfirm('CARD','Kartani o\'chirish','Bu kartani o\'chirishni xohlaysizmi?',async ()=>{
+    const localCards = get('cards').filter(c => String(c.id) !== String(id));
+    set('cards', localCards);
+    localStorage.setItem('sa_cards', JSON.stringify(localCards));
+    try{
+      await sb.from('settings').upsert({ key: 'payment_cards', value: JSON.stringify(localCards) });
+    }catch(e){ console.warn('Karta o\'chirish Supabasega saqlanmadi:', e); }
+    renderCards();
+  });
+}
+
+function renderOrders(){
+  const orders = (SBApp.state.orders || []).slice().sort((a,b)=>SBApp.toMillis(b.createdAt)-SBApp.toMillis(a.createdAt));
+  document.getElementById('orderCount').textContent = orders.length+' ta';
+  const tb = document.getElementById('ordersTable');
+  if(!orders.length){ tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-icon"><svg class="mini-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><h4>Buyurtma yo'q</h4></div></td></tr>`; return; }
+  const labels = {waiting_admin:'Kutishdagi buyurtmalar',active:'Jarayondagi buyurtmalar',done:'Bajarilgan buyurtmalar'};
+  const statuses = ['waiting_admin','active','done'];
+  tb.innerHTML = statuses.map(status=>{
+    const group = orders.filter(o=>o.status===status);
+    if(!group.length) return '';
+    return `<tr><td colspan="9" style="background:var(--surface2);font-weight:800;color:var(--accent)">${labels[status]}</td></tr>` + group.map((o,i)=>`
+      <tr>
+        <td class="td-muted">${i+1}</td>
+        <td><div style="font-weight:600">${SBApp.escapeHtml(o.customerName||'-')}</div><div class="td-muted">${SBApp.escapeHtml(o.customerLogin||'-')}</div></td>
+        <td>${SBApp.iconMap[o.platform]||''} ${SBApp.escapeHtml(o.platform||'-')}</td>
+        <td>${SBApp.escapeHtml(o.pkgName||'-')}</td>
+        <td><a href="${SBApp.escapeHtml(o.link)}" target="_blank" style="color:var(--blue);font-size:16px;text-decoration:none;word-break:break-all">${SBApp.escapeHtml((o.link||'').substring(0,30))}${(o.link||'').length>30?'...':''}</a></td>
+        <td style="color:var(--accent);font-weight:700">${SBApp.formatPrice(o.price)}</td>
+        <td><span class="badge ${status==='done'?'b-done':status==='active'?'b-active':'b-review'}">${labels[status]}</span></td>
+        <td class="td-muted">${status==='active' ? `${SBApp.number(o.acceptedWorkers)}/${SBApp.number(o.neededWorkers || o.count)} qabul` : SBApp.formatDate(o.createdAt)}</td>
+        <td>${status==='waiting_admin'?'Screenshot tasdiqlanishini kutmoqda':'-'}</td>
+      </tr>`).join('');
+  }).join('');
+}
+
+function approveOrder(id){
+  sb.from('buyurtmalar').update({holat:'active'}).eq('id', id).then(()=>{}).catch(error=>alert(error.message));
+}
+
+function setScreenshotTab(tab){
+  screenshotTab = tab;
+  document.getElementById('ssCustomerTab').className = `btn ${tab==='customer'?'btn-accent':'btn-outline'} btn-sm`;
+  document.getElementById('ssWorkerTab').className = `btn ${tab==='worker'?'btn-accent':'btn-outline'} btn-sm`;
+  renderScreenshots();
+}
+
+function renderScreenshots(){
+  const allSS = (SBApp.state.screenshots || []).filter(s=>s.kind === screenshotTab);
+  
+  document.getElementById('ssBadge').textContent = (SBApp.state.screenshots || []).filter(s=>s.status==='pending_review').length; 
+  
+  const grid = document.getElementById('ssGrid');
+  if(!allSS.length){ 
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">IMG</div><h4>Hali screenshot yo'q</h4><p>${screenshotTab==='customer'?'Buyurtmachilar':'Ish bajaruvchilar'} screenshot yuborganda shu yerda chiqadi</p></div>`; 
+    return; 
+  }
+  
+  grid.innerHTML = allSS.map(s=>{
+    const senderId = getScreenshotSenderId(s);
+    const senderRole = s.kind === 'customer' ? 'Buyurtmachi' : 'Ish bajaruvchi';
+    return `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="background:var(--surface2);padding:16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-weight:600">${SBApp.escapeHtml(s.platform||'To\'lov')} - ${SBApp.escapeHtml(s.pkgName||s.packageName||s.type||'-')}</span>
+          <span class="badge ${s.status==='pending_review'?'b-review':s.status==='approved'?'b-done':'b-rejected'}">${s.status==='pending_review'?"Ko'rib chiqilmoqda":s.status==='approved'?'Tasdiqlandi':'Rad etildi'}</span>
+        </div>
+        <div style="font-size:16px;color:var(--muted)">${SBApp.escapeHtml(s.customerName||s.workerName||'-')} · ${SBApp.formatDate(s.createdAt)}</div>
+      </div>
+      <div style="padding:14px;background:var(--surface3)">
+        <a href="${SBApp.escapeHtml(s.screenshotUrl)}" target="_blank"><img class="ss-img" src="${SBApp.escapeHtml(s.screenshotUrl)}" alt="Screenshot"></a>
+        <div style="margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;color:var(--muted)">
+          ${senderRole} ID: <strong style="color:var(--accent)">${SBApp.escapeHtml(senderId || "ID topilmadi")}</strong>
+        </div>
+      </div>
+      ${s.status==='pending_review'
+        ? (s.kind === 'customer' ? `
+          <div style="padding:14px;display:flex;gap:8px;flex-direction:column">
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-green btn-full btn-sm" id="approveBtn_${s.id}" onclick="handleApproveScreenshot('${s.id}', this)">✔ To'lovni tasdiqlash</button>
+              <button class="act-btn act-reject" style="flex:1;justify-content:center" onclick="rejectScreenshotDoc('${s.id}')">✖ Bekor qilish</button>
+            </div>
+            <div id="approveMsg_${s.id}" style="display:none;text-align:center;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:600"></div>
+          </div>`
+          : `<div style="padding:14px;text-align:center;color:var(--accent);font-size:16px">Buyurtmachi tasdiqlashi kutilmoqda</div>`)
+        : `<div style="padding:14px;text-align:center;color:var(--muted);font-size:16px">Ko'rib chiqilgan</div>`}
+    </div>
+  `}).join('');
+}
+
+function getScreenshotSenderId(s){
+  if(s.kind === 'customer'){
+    return s.customerId || s.senderId || (SBApp.state.orders || []).find(o=>o.id===s.orderId)?.customerId || (SBApp.state.users || []).find(u=>u.uid===s.customerUid || u.id===s.customerUid)?.customerId || '';
+  }
+  return s.workerUserId || s.senderId || (SBApp.state.workerTasks || []).find(t=>t.id===s.taskId)?.workerUserId || (SBApp.state.users || []).find(u=>u.uid===s.workerUid || u.id===s.workerUid)?.userId || '';
+}
+
+async function approveScreenshotDoc(id){
+  const s = (SBApp.state.screenshots || []).find(item=>item.id===id);
+  if(!s) return;
+  try{
+    if(s.kind === 'customer'){
+      await SBApp.approveCustomerScreenshot(s);
+    } else {
+      throw new Error("Worker screenshotini buyurtmachi tasdiqlaydi.");
+    }
+  }catch(error){ alert(error.message || 'Tasdiqlashda xatolik yuz berdi.'); }
+}
+
+async function rejectScreenshotDoc(id){
+  const s = (SBApp.state.screenshots || []).find(item=>item.id===id);
+  if(!s) return;
+  try{
+    if(s.kind === 'customer') await SBApp.rejectCustomerScreenshot(s);
+    else throw new Error("Worker screenshotini buyurtmachi ko'rib chiqadi.");
+  }catch(error){ alert(error.message || 'Bekor qilishda xatolik yuz berdi.'); }
+}
+
+// ===== REFERRAL REQUESTS TIZIMI (SUPABASE) =====
+function startReferralRequestsListener(){ /* polling orqali ishlaydi */ }
+
+function renderReferralRequests(){
+  const el = document.getElementById('referralRequestsList');
+  if(!el) return;
+  const reqs = SBApp.state.referralRequests || [];
+  if(!reqs.length){
+    el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">🎁</div><div style="font-size:18px;font-weight:600">Hali referal so'rovlar yo'q</div><div style="font-size:16px;margin-top:6px">Worker referal havola orqali kimni taklif qilganda bu yerda ko'rinadi</div></div>`;
+    return;
+  }
+
+  const statusLabel = {
+    pending: {text:"Ko'rib chiqilmoqda", color:'#f59e0b', bg:'rgba(245,158,11,0.12)'},
+    approved: {text:'Admin tasdiqladi — buyurtma kutilmoqda', color:'#4f8ef7', bg:'rgba(79,142,247,0.1)'},
+    bonus_ready: {text:'5 ta bajarildi — bonus berilishga tayyor', color:'#a855f7', bg:'rgba(168,85,247,0.1)'},
+    completed: {text:'Bonus berildi ✅', color:'#34d399', bg:'rgba(52,211,153,0.12)'},
+    rejected: {text:'Rad etildi', color:'#f87171', bg:'rgba(248,113,113,0.1)'}
+  };
+
+  el.innerHTML = reqs.map(r => {
+    const sl = statusLabel[r.status] || statusLabel.pending;
+    const date = r.createdAt ? new Date(r.createdAt).toLocaleDateString('uz-UZ') : '—';
+    const buttons = r.status === 'pending' ? `
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button onclick="approveReferralRequest('${r.id}')" style="flex:1;padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,#34d399,#059669);color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Tasdiqlayman
+        </button>
+        <button onclick="rejectReferralRequest('${r.id}')" style="flex:1;padding:10px 16px;border-radius:10px;border:none;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.25);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Rad etaman
+        </button>
+      </div>` : '';
+
+    const ordersInfo = (r.status === 'approved' || r.status === 'bonus_ready') ? `
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(79,142,247,0.08);border-radius:10px;border:1px solid rgba(79,142,247,0.2)">
+        <div style="font-size:14px;color:var(--muted);margin-bottom:4px">Buyurtmalar bajarilishi</div>
+        <div style="font-size:18px;font-weight:700;color:#4f8ef7">${r.ordersCompleted || 0} / 5 ta</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">5 ta buyurtma bajarilganda bonus avtomatik beriladi</div>
+      </div>` : '';
+
+    return `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:8px;letter-spacing:0.5px">REFERAL SO'ROV · ${date}</div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:3px">Taklif qilgan Worker:</div>
+            <div style="font-size:17px;font-weight:700">👤 ${SBApp.escapeHtml(r.referrerName||'—')}</div>
+            <code style="font-size:13px;background:rgba(168,85,247,0.12);color:#a855f7;padding:2px 8px;border-radius:6px">${SBApp.escapeHtml(r.referrerUserId||'—')}</code>
+          </div>
+          <div style="margin-bottom:4px">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:3px">Ro'yxatdan o'tgan foydalanuvchi:</div>
+            <div style="font-size:17px;font-weight:700">🆕 ${SBApp.escapeHtml(r.referredName||'—')}</div>
+            <code style="font-size:13px;background:rgba(79,142,247,0.12);color:#4f8ef7;padding:2px 8px;border-radius:6px">${SBApp.escapeHtml(r.referredUserId||'—')}</code>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <span style="display:inline-block;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600;background:${sl.bg};color:${sl.color}">${sl.text}</span>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:12px 14px;background:var(--surface2);border-radius:10px;font-size:15px;color:var(--text)">
+        <strong>${SBApp.escapeHtml(r.referrerUserId||'—')}</strong> worker <strong>${SBApp.escapeHtml(r.referredUserId||'—')}</strong> ni taklif qildi.
+      </div>
+      ${ordersInfo}
+      ${buttons}
+    </div>`;
+  }).join('');
+}
+
+const approvedReferrals = new Set();
+const rejectedReferrals = new Set();
+
+async function approveReferralRequest(reqId){
+  if(approvedReferrals.has(reqId)) return;
+  approvedReferrals.add(reqId);
+  try {
+    const req = (SBApp.state.referralRequests || []).find(r => r.id === reqId);
+    if(!req) return;
+
+    // 1. So'rov holatini yangilaymiz
+    await sb.from('referral_requests').update({
+      status: 'approved',
+      admin_approved: true,
+      admin_approved_at: new Date().toISOString()
+    }).eq('id', reqId);
+
+    // 2. Worker uchun bildirishnoma
+    await sb.from('notifications').insert({
+      rol: 'worker',
+      user_uid: req.referrerUid,
+      type: 'referral_approved',
+      referral_req_id: reqId,
+      referred_name: req.referredName || '',
+      referred_user_id: req.referredUserId || '',
+      title: 'Referal tasdiqlandi! 🎉',
+      message: `Siz taklif qilgan foydalanuvchi (${req.referredUserId||''}) saytda ro'yxatdan o'tdi. 5 ta buyurtma bajargandan so'ng mukofot beriladi!`,
+      fullscreen: true,
+      read: false
+    });
+
+    alert('✅ Referal tasdiqlandi!');
+  } catch(e) {
+    approvedReferrals.delete(reqId);
+    alert('Xatolik: ' + (e.message || e));
+  }
+}
+
+async function rejectReferralRequest(reqId){
+  if(rejectedReferrals.has(reqId)) return;
+  rejectedReferrals.add(reqId);
+  try {
+    await sb.from('referral_requests').update({
+      status: 'rejected',
+      admin_approved: false,
+      admin_rejected_at: new Date().toISOString()
+    }).eq('id', reqId);
+    alert('Referal rad etildi.');
+  } catch(e) {
+    rejectedReferrals.delete(reqId);
+    alert('Xatolik: ' + (e.message || e));
+  }
+}
+
+// Worker 5 ta vazifa bajarganda bonus berish
+async function checkAndGiveReferralBonus(workerUid){
+  try {
+    const {data: refs} = await sb.from('referral_requests')
+      .select('*')
+      .eq('referred_uid', workerUid)
+      .eq('status', 'approved')
+      .eq('bonus_given', false)
+      .limit(1);
+
+    if(!refs || !refs.length) return;
+    const req = refs[0];
+
+    // Bajarilgan vazifalar sonini hisoblash
+    const {data: tasks} = await sb.from('bajarilgan_ishlar')
+      .select('id')
+      .eq('worker_id', workerUid)
+      .eq('holat', 'tasdiqlandi');
+
+    const completedCount = tasks?.length || 0;
+
+    // ordersCompleted yangilash
+    await sb.from('referral_requests').update({ orders_completed: completedCount }).eq('id', req.id);
+
+    if(completedCount >= 5){
+      const REFERRAL_BONUS = req.bonus_ball || 10;
+
+      // Referral bergan workerga ball ber
+      const {data: referrer} = await sb.from('users').select('balans').eq('id', req.referrer_uid).single();
+      await sb.from('users').update({ balans: (referrer?.balans||0) + REFERRAL_BONUS }).eq('id', req.referrer_uid);
+
+      // So'rovni yopamiz
+      await sb.from('referral_requests').update({
+        status: 'completed',
+        bonus_given: true,
+        bonus_given_at: new Date().toISOString()
+      }).eq('id', req.id);
+
+      // Worker uchun bildirishnoma
+      await sb.from('notifications').insert({
+        rol: 'worker',
+        user_uid: req.referrer_uid,
+        type: 'referral_bonus',
+        title: 'Referal bonus olindi! 🏆',
+        message: `Siz taklif qilgan ${req.referred_name||'foydalanuvchi'} 5 ta buyurtma bajardi. Hisobingizga ${REFERRAL_BONUS.toLocaleString()} so'm qo'shildi!`,
+        fullscreen: true,
+        read: false
+      });
+    }
+  } catch(e){ console.warn('checkAndGiveReferralBonus xato:', e); }
+}
+// ===== REFERRAL REQUESTS TIZIMI TUGADI =====
+
+const approvedScreenshots = new Set();
+
+async function handleApproveScreenshot(id, btn){
+  const msgEl = document.getElementById('approveMsg_' + id);
+  if(approvedScreenshots.has(id)){
+    if(msgEl){
+      msgEl.style.display = 'block';
+      msgEl.style.background = 'rgba(251,146,60,0.12)';
+      msgEl.style.border = '1px solid rgba(251,146,60,0.25)';
+      msgEl.style.color = '#fb923c';
+      msgEl.textContent = '⚠️ Screenshot tasdiqlangan tugmani qayta bosmang';
+    }
+    return;
+  }
+  approvedScreenshots.add(id);
+  if(btn){ btn.disabled=true; btn.style.opacity='0.6'; btn.style.cursor='not-allowed'; }
+  if(msgEl){
+    msgEl.style.display='block';
+    msgEl.style.background='rgba(52,211,153,0.1)';
+    msgEl.style.border='1px solid rgba(52,211,153,0.25)';
+    msgEl.style.color='var(--green)';
+    msgEl.textContent="✅ To'lov cheki tasdiqlandi";
+  }
+  await approveScreenshotDoc(id);
+}
+
+// Minimal yechib olish summasi
+async function saveMinWithdraw(){
+  const val = document.getElementById('minWithdrawInput').value;
+  if(!val||isNaN(val)||Number(val)<1){ alert("Iltimos, to'g'ri son kiriting"); return; }
+  const num = Number(val);
+  localStorage.setItem('sb_min_withdraw', String(num));
+  try{
+    await sb.from('settings').upsert({ key: 'withdraw_min', value: String(num) });
+  }catch(e){ console.warn('settings saqlashda xato:', e); }
+  document.getElementById('currentMinWithdraw').textContent = num+" so'm";
+  const msg = document.getElementById('minWithdrawMsg');
+  msg.style.display='inline'; setTimeout(()=>{msg.style.display='none';},2500);
+}
+
+function loadMinWithdraw(){
+  const cached = localStorage.getItem('sb_min_withdraw');
+  if(cached){
+    document.getElementById('currentMinWithdraw').textContent = cached+" so'm";
+    document.getElementById('minWithdrawInput').value = cached;
+  }
+  sb.from('settings').select('value').eq('key','withdraw_min').single().then(({data})=>{
+    if(data?.value){
+      document.getElementById('currentMinWithdraw').textContent = data.value+" so'm";
+      document.getElementById('minWithdrawInput').value = data.value;
+      localStorage.setItem('sb_min_withdraw', data.value);
+    }
+  }).catch(()=>{});
+}
+
+// Demo foydalanuvchilarni Supabasedan o'chirish
+async function removeDemoUsersFromFirestore(){
+  try{
+    const {data: users} = await sb.from('users').select('id,ism,login,email').neq('rol','admin');
+    if(!users) return;
+    const demoIds = users.filter(u=>{
+      const name=(u.ism||'').toLowerCase().trim();
+      const login=(u.login||'').toLowerCase().trim();
+      const email=(u.email||'').toLowerCase().trim();
+      return name==='test'||login==='test'||login.startsWith('test')||email.startsWith('test@')||email.startsWith('demo@');
+    }).map(u=>u.id);
+    if(demoIds.length>0){
+      await sb.from('users').delete().in('id', demoIds);
+    }
+  }catch(e){ console.warn('Demo remove error:',e); }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{loadMinWithdraw(); removeDemoUsersFromFirestore();},1500);
+});
+
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('show'); });
+});
+</script>
+</body>
+</html>

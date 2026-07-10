@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#13131c; --surface2:#1a1a26;
+    --border:rgba(255,255,255,0.08); --accent:#4f8ef7; --accent2:#a855f7;
+    --text:#f0f0f5; --muted:#6b6b80; --error:#f87171; --success:#34d399;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:Calibri, Arial, sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; align-items:center;
+    justify-content:center; padding:20px;
+  }
+  .bg-grid {
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(79,142,247,0.03) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(79,142,247,0.03) 1px,transparent 1px);
+    background-size:60px 60px; pointer-events:none;
+  }
+  .card {
+    position:relative; z-index:1;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:24px; padding:44px 40px;
+    width:100%; max-width:460px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.5);
+    animation:slideUp 0.5s ease;
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  .back-link {
+    display:inline-flex; align-items:center; gap:6px;
+    color:var(--muted); text-decoration:none;
+    font-size:16px; margin-bottom:32px; transition:color 0.2s;
+  }
+  .back-link:hover { color:var(--text); }
+  .logo { font-family:Calibri, Arial, sans-serif; font-size:16px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+  h2 { font-family:Calibri, Arial, sans-serif; font-size:26px; font-weight:800; margin-bottom:6px; }
+  .sub { color:var(--muted); font-size:16px; margin-bottom:32px; }
+  .field { margin-bottom:18px; }
+  .field-label {
+    display:block; font-size:16px; font-weight:600;
+    letter-spacing:0.8px; text-transform:uppercase;
+    color:var(--muted); margin-bottom:8px;
+  }
+
+  /* INPUT */
+  .input-wrap {
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .input-left-icon {
+    position:absolute;
+    left:14px;
+    color:var(--muted);
+    pointer-events:none;
+    z-index:1;
+    display:flex;
+    align-items:center;
+  }
+  .input-wrap input {
+    width:100%;
+    padding:13px 14px 13px 42px;
+    background:var(--surface2);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    color:var(--text);
+    font-family:Calibri, Arial, sans-serif;
+    font-size:16px;
+    outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap input.has-right-icon {
+    padding-right:46px;
+  }
+  .input-wrap input:focus {
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(79,142,247,0.12);
+  }
+  .input-wrap input.error {
+    border-color:var(--error);
+  }
+  .input-right-btn {
+    position:absolute;
+    right:0;
+    top:0;
+    bottom:0;
+    width:44px;
+    background:none;
+    border:none;
+    color:var(--muted);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:0 12px 12px 0;
+    transition:color 0.2s;
+    z-index:2;
+  }
+  .input-right-btn:hover { color:var(--text); }
+
+  /* ERROR MESSAGE */
+  .err-msg {
+    display:none;
+    align-items:center;
+    gap:6px;
+    margin-top:8px;
+    font-size:16px;
+    color:var(--error);
+  }
+  .err-msg.show { display:flex; }
+
+  /* REGISTER BUTTON */
+  .btn-register {
+    width:100%; padding:15px; margin-top:10px;
+    border-radius:12px; border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; font-family:Calibri, Arial, sans-serif;
+    font-size:16px; font-weight:700; cursor:pointer;
+    transition:transform 0.2s,box-shadow 0.2s;
+    box-shadow:0 6px 30px rgba(79,142,247,0.35);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-register:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 40px rgba(79,142,247,0.5); }
+  .btn-register:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .spinner {
+    display:none; width:18px; height:18px;
+    border:2px solid rgba(255,255,255,0.3);
+    border-top-color:#fff; border-radius:50%;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .divider { display:flex; align-items:center; gap:12px; margin:24px 0; color:var(--muted); font-size:16px; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .login-link { text-align:center; font-size:16px; color:var(--muted); }
+  .login-link a { color:var(--accent); text-decoration:none; font-weight:600; }
+  .login-link a:hover { text-decoration:underline; }
+
+  /* SUCCESS MODAL */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.86); backdrop-filter:blur(12px);
+    z-index:100; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.show { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:24px; padding:44px 36px; text-align:center;
+    max-width:560px; width:100%;
+    animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+  .modal-icon { font-size:40px; margin-bottom:18px; }
+  .modal h3 { font-family:Calibri, Arial, sans-serif; font-size:22px; font-weight:800; margin-bottom:10px; }
+  .modal p { color:var(--muted); font-size:16px; line-height:1.6; }
+  .modal p strong { color:var(--success); }
+  .modal-btn {
+    display:inline-block; margin-top:28px; padding:13px 32px;
+    border-radius:12px; background:rgba(79,142,247,0.15);
+    border:1px solid rgba(79,142,247,0.3); color:var(--accent);
+    font-family:Calibri, Arial, sans-serif; font-weight:700; font-size:16px;
+    cursor:pointer; text-decoration:none; transition:background 0.2s;
+  }
+  .modal-btn:hover { background:rgba(79,142,247,0.25); }
+  .help-btn{
+    position:fixed;right:18px;bottom:18px;z-index:20;
+    display:inline-flex;align-items:center;gap:8px;padding:11px 14px;
+    border-radius:12px;border:1px solid rgba(79,142,247,0.28);
+    background:rgba(79,142,247,0.12);color:var(--accent);
+    font-family:Calibri, Arial, sans-serif;font-size:16px;font-weight:700;cursor:pointer;
+  }
+  .help-btn:hover{background:rgba(79,142,247,0.22)}
+.mini-icon{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.16em;flex-shrink:0}.stat-icon .mini-icon,.empty-icon .mini-icon,.upload-icon .mini-icon,.platform-icon .mini-icon,.platform-icon-big .mini-icon,.history-icon .mini-icon{width:1.25em;height:1.25em}.icon-title{display:inline-flex;align-items:center;gap:8px}.icon-title .mini-icon{width:1em;height:1em}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<button class="help-btn" onclick="openHelp()">Yordam</button>
+
+<div class="card">
+  <a href="index.html" class="back-link">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Orqaga
+  </a>
+  <h2 id="registerTitle">Ro'yxatdan o'tish</h2>
+  <p class="sub" id="registerSub">Buyurtmachi sifatida ro'yxatdan o'ting</p>
+
+
+
+  <!-- ISM -->
+  <div class="field">
+    <label class="field-label">Ism Familiya</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      <input type="text" id="name" placeholder="Abdullayev Jasur" />
+    </div>
+  </div>
+
+  <!-- TELEFON -->
+  <div class="field">
+    <label class="field-label">Telefon Raqam</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
+      </span>
+      <input type="tel" id="phone" placeholder="+998 90 123 45 67" />
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="field">
+    <label class="field-label">Login</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      </span>
+      <input type="text" id="login" placeholder="jasur_2000" />
+    </div>
+  </div>
+
+  <!-- GMAIL -->
+  <div class="field">
+    <label class="field-label">Gmail manzil</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </span>
+      <input type="email" id="email" placeholder="jasur@gmail.com" />
+    </div>
+  </div>
+
+  <!-- PAROL -->
+  <div class="field">
+    <label class="field-label">Parol</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
+      <input type="password" id="password" placeholder="Kamida 8 belgi" class="has-right-icon" />
+      <button class="input-right-btn" type="button" onclick="togglePass('password','eye1open','eye1closed')">
+        <svg id="eye1open" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <svg id="eye1closed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAROLNI TASDIQLASH -->
+  <div class="field">
+    <label class="field-label">Parolni tasdiqlang</label>
+    <div class="input-wrap">
+      <span class="input-left-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
+      <input type="password" id="password2" placeholder="Parolni qayta kiriting" class="has-right-icon" />
+      <button class="input-right-btn" type="button" onclick="togglePass('password2','eye2open','eye2closed')">
+        <svg id="eye2open" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <svg id="eye2closed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+      </button>
+    </div>
+    <div class="err-msg" id="passErr">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Parollar mos emas — iltimos parollarni to'g'ri kiriting
+    </div>
+  </div>
+
+  <button class="btn-register" id="registerBtn" onclick="handleRegister()">
+    <span id="btnText">Ro'yxatdan o'tish</span>
+    <div class="spinner" id="btnSpinner"></div>
+  </button>
+
+  <div class="divider">yoki</div>
+  <div class="login-link">
+    Hisobingiz bormi? <a href="login.html">Kirish</a>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="modal-icon">OK</div>
+    <h3>Tasdiqlash havolasi Gmailingizga yuborildi.</h3>
+    <p id="successText">
+      Gmailingizga kiring va tasdiqlang.
+    </p>
+    <a href="login.html" class="modal-btn" id="successLink">Login sahifasiga o'tish</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+const roleParam = new URLSearchParams(window.location.search).get('role');
+let selectedRole = roleParam === 'worker' ? 'worker' : 'customer';
+const roleConfig = {
+  customer: {
+    title: "Buyurtmachi sifatida ro'yxatdan o'tish",
+    sub: "Paket tanlash va buyurtmalarni kuzatish uchun hisob oching",
+    button: "Buyurtmachi bo'lib ro'yxatdan o'tish",
+  },
+  worker: {
+    title: "Ish bajaruvchi sifatida ro'yxatdan o'tish",
+    sub: "Aktiv buyurtmalarni bajarish va ball yig'ish uchun hisob oching",
+    button: "Ish bajaruvchi bo'lib ro'yxatdan o'tish",
+  }
+};
+
+function applySelectedRole(){
+  const cfg = roleConfig[selectedRole];
+  document.getElementById('registerTitle').textContent = cfg.title;
+  document.getElementById('registerSub').textContent = cfg.sub;
+  document.getElementById('btnText').textContent = cfg.button;
+  document.getElementById('successLink').href = 'login.html';
+}
+
+function updateButtonStyles() {}
+
+function getReferralSourceId() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('ref') || '').trim().toUpperCase();
+}
+
+function togglePass(inputId, openId, closedId) {
+  const inp = document.getElementById(inputId);
+  const eyeOpen = document.getElementById(openId);
+  const eyeClosed = document.getElementById(closedId);
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eyeOpen.style.display = 'none';
+    eyeClosed.style.display = 'block';
+  } else {
+    inp.type = 'password';
+    eyeOpen.style.display = 'block';
+    eyeClosed.style.display = 'none';
+  }
+}
+
+async function handleRegister() {
+  const name  = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const login = document.getElementById('login').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const pass1 = document.getElementById('password').value;
+  const pass2 = document.getElementById('password2').value;
+  const passErr = document.getElementById('passErr');
+
+  passErr.classList.remove('show');
+  document.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+
+  let valid = true;
+  if (!name)  { document.getElementById('name').classList.add('error');  valid = false; }
+  if (!phone) { document.getElementById('phone').classList.add('error'); valid = false; }
+  if (!login) { document.getElementById('login').classList.add('error'); valid = false; }
+  if (!email || !email.includes('@')) { document.getElementById('email').classList.add('error'); valid = false; }
+  if (!pass1 || pass1.length < 8) { document.getElementById('password').classList.add('error'); valid = false; }
+
+  if (pass1 !== pass2) {
+    document.getElementById('password').classList.add('error');
+    document.getElementById('password2').classList.add('error');
+    passErr.textContent = "Parollar mos emas — iltimos parollarni to'g'ri kiriting";
+    passErr.classList.add('show');
+    return;
+  }
+  if (!valid) return;
+
+  const btn = document.getElementById('registerBtn');
+  document.getElementById('btnText').style.display = 'none';
+  document.getElementById('btnSpinner').style.display = 'block';
+  btn.disabled = true;
+
+  try {
+    // Login band emasligini tekshirish
+    const { data: loginCheck } = await sb
+      .from('users')
+      .select('id')
+      .eq('login_lower', login.toLowerCase())
+      .limit(1);
+
+    if (loginCheck && loginCheck.length > 0) {
+      btn.disabled = false;
+      document.getElementById('btnText').style.display = 'inline';
+      document.getElementById('btnSpinner').style.display = 'none';
+      document.getElementById('login').classList.add('error');
+      passErr.textContent = "Bu login allaqachon band, boshqa login tanlang";
+      passErr.classList.add('show');
+      return;
+    }
+
+    // Supabase Auth bilan ro'yxatdan o'tish
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password: pass1,
+      options: {
+        emailRedirectTo: window.location.origin + '/login.html?verified=1'
+      }
+    });
+
+    if (error) throw error;
+
+    const userId = 'SB' + data.user.id.slice(0, 6).toUpperCase();
+    const referralSourceId = getReferralSourceId();
+
+    // Foydalanuvchi profilini saqlash
+    await sb.from('users').insert({
+      id: data.user.id,
+      ism: name,
+      email: email,
+      login_lower: login.toLowerCase(),
+      phone,
+      login,
+      user_id: userId,
+      rol: selectedRole,
+      referred_by: referralSourceId || null,
+      balans: 0
+    });
+
+    // Agar referal havola orqali kelgan bo'lsa, referal so'rov yaratamiz
+    if(referralSourceId){
+      try{
+        const {data: referrer} = await sb.from('users')
+          .select('id, ism')
+          .eq('user_id', referralSourceId)
+          .single();
+
+        if(referrer){
+          await sb.from('referral_requests').insert({
+            referrer_user_id: referralSourceId,
+            referrer_uid: referrer.id,
+            referrer_name: referrer.ism || '',
+            referred_user_id: userId,
+            referred_uid: data.user.id,
+            referred_name: name,
+            referred_email: email,
+            referred_role: selectedRole,
+            status: 'pending'
+          });
+        }
+      }catch(refError){
+        console.warn('Referal so\'rov yaratishda xato:', refError);
+      }
+    }
+
+    btn.disabled = false;
+    document.getElementById('btnText').style.display = 'inline';
+    document.getElementById('btnSpinner').style.display = 'none';
+
+    const successText = document.getElementById('successText');
+    successText.innerHTML = `Tasdiqlash havolasi <strong>${email}</strong> manziliga yuborildi.<br><br>Gmailingizga kiring va accountingizni tasdiqlang.`;
+    document.getElementById('successModal').classList.add('show');
+
+  } catch (error) {
+    btn.disabled = false;
+    document.getElementById('btnText').style.display = 'inline';
+    document.getElementById('btnSpinner').style.display = 'none';
+    const msgMap = {
+      'User already registered': "Bu Gmail allaqachon band, boshqa Gmail kiriting",
+    };
+    passErr.textContent = msgMap[error.message] || error.message || "Ro'yxatdan o'tishda xatolik yuz berdi";
+    passErr.classList.add('show');
+  }
+}
+
+(function(){
+  applySelectedRole();
+  updateButtonStyles();
+})();
+</script>
+</body>
+</html>
